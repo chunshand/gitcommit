@@ -41,14 +41,30 @@
 
                 <div class="py-2">
                     <div class="pb-2 text-right">
-                        <ElButton type="primary" class="w-40">生成</ElButton>
+                        <ElButton
+                            type="primary"
+                            class="w-40"
+                            @click="handleCreate"
+                            >生成</ElButton
+                        >
                     </div>
 
                     <div class="pb-2">
-                        <ElInput v-model="content" type="textarea"></ElInput>
+                        <ElInput
+                            v-model="content"
+                            type="textarea"
+                            disabled
+                            :rows="10"
+                        ></ElInput>
                     </div>
                     <div class="text-right">
-                        <ElButton type="success" class="w-40">复制</ElButton>
+                        <ElButton
+                            type="success"
+                            class="w-40"
+                            @click="copy(content)"
+                            ><span v-if="!copied">复制</span>
+                            <span v-else>已复制</span></ElButton
+                        >
                     </div>
                 </div>
             </ElCol>
@@ -124,6 +140,12 @@ const body = ref("");
 const footer = ref("");
 
 const content = ref("");
+
+const { text, copy, copied, isSupported } = useClipboard({
+    source: content,
+});
+
+const handleCreate = () => {};
 </script>
 <style lang="less" scoped>
 </style>
