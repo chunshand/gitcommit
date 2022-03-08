@@ -1,0 +1,29 @@
+/* ./src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        font-size: 16px;
+    }
+
+    .el-button.el-button--primary.el-button--default {
+        background-color: var(--el-button-border-color,
+                var(--el-border-color-base));
+    }
+
+    .el-button.el-button--danger.el-button--danger {
+        background-color: var(--el-button-border-color,
+                var(--el-border-color-base));
+    }
+
+    :root body {
+        --el-color-primary: #237cec;
+        --el-color-success: #2a9f51;
+        --el-color-warning: #ff7700;
+        --el-color-danger: #f05b53;
+    }
+
+   
+}
