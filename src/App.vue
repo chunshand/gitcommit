@@ -15,7 +15,7 @@
                             <ElOption
                                 v-for="item in typeOptions"
                                 :key="item.value"
-                                :label="item.label"
+                                :label="item.label + '(' + item.value + ')'"
                                 :value="item.value"
                             >
                             </ElOption>
@@ -31,7 +31,11 @@
                     </ElFormItem>
 
                     <ElFormItem label="内容">
-                        <ElInput v-model="body" type="textarea"></ElInput>
+                        <ElInput
+                            v-model="body"
+                            type="textarea"
+                            :rows="10"
+                        ></ElInput>
                     </ElFormItem>
 
                     <!-- <ElFormItem label="最后">
@@ -40,15 +44,6 @@
                 </ElForm>
 
                 <div class="py-2">
-                    <div class="pb-2 text-right">
-                        <ElButton
-                            type="primary"
-                            class="w-40"
-                            @click="handleCreate"
-                            >生成</ElButton
-                        >
-                    </div>
-
                     <div class="pb-2">
                         <ElInput
                             v-model="content"
@@ -61,6 +56,7 @@
                         <ElButton
                             type="success"
                             class="w-40"
+                            :disabled="copyDisabled"
                             @click="copy(content)"
                             ><span v-if="!copied">复制</span>
                             <span v-else>已复制</span></ElButton
@@ -72,7 +68,7 @@
     </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import {
     ElRow,
     ElCol,
@@ -113,18 +109,6 @@ const typeOptions = ref([
         value: "test",
         label: "增加 更新测试",
     },
-    {
-        value: "build",
-        label: "构建变动",
-    },
-    {
-        value: "ci",
-        label: "继承变动",
-    },
-    {
-        value: "revert",
-        label: "回滚提交",
-    },
 ]);
 // 类型
 const type = ref("feat");
@@ -139,12 +123,25 @@ const body = ref("");
 // 最后
 const footer = ref("");
 
-const content = ref("");
+const content = computed(() => {
+    let commit = "";
+    commit += type.value;
+    if (scope.value) {
+        commit += "(" + scope.value + ")";
+    }
+    commit += ":" + subject.value;
 
+    if (body.value) {
+        commit += "\r\n\r\n" + body.value + "\r\n\r\n";
+    }
+    return commit;
+});
+const copyDisabled = computed((): boolean => {
+    return type.value && subject.value ? false : true;
+});
 const { text, copy, copied, isSupported } = useClipboard({
     source: content,
 });
-
 const handleCreate = () => {};
 </script>
 <style lang="less" scoped>
