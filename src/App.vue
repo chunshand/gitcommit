@@ -20,9 +20,13 @@
                 :xl="{
                     span: 10,
                     offset: 7,
-
                 }"
             >
+                <div class="text-right">
+                    <ElButton type="warning" size="small" @click="handleClear"
+                        >重置内容</ElButton
+                    >
+                </div>
                 <ElForm class="w-full" label-position="top" label-width="100px">
                     <ElFormItem label="类型" :hide-required-asterisk="true">
                         <ElSelect
@@ -161,7 +165,12 @@ const copyDisabled = computed((): boolean => {
 const { text, copy, copied, isSupported } = useClipboard({
     source: content,
 });
-const handleCreate = () => {};
+const handleClear = () => {
+    subject.value = "";
+    scope.value = "";
+    body.value = "";
+    type.value = typeOptions.value[0].value;
+};
 </script>
 <style lang="less" scoped>
 </style>
