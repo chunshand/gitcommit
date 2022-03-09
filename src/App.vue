@@ -3,7 +3,26 @@
 <template>
     <div class="w-full p-8">
         <ElRow :gutter="0">
-            <ElCol :xs="24" :sm="24" :md="12" :lg="8" :xl="8">
+            <ElCol
+                :xs="{
+                    span: 24,
+                }"
+                :sm="{
+                    span: 24,
+                }"
+                :md="{
+                    span: 24,
+                }"
+                :lg="{
+                    span: 12,
+                    offset: 6,
+                }"
+                :xl="{
+                    span: 10,
+                    offset: 7,
+
+                }"
+            >
                 <ElForm class="w-full" label-position="top" label-width="100px">
                     <ElFormItem label="类型" :hide-required-asterisk="true">
                         <ElSelect
