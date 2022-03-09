@@ -18,12 +18,12 @@
                 var(--el-border-color-base));
     }
 
-    :root body {
+    /* :root body {
         --el-color-primary: #237cec;
         --el-color-success: #2a9f51;
         --el-color-warning: #ff7700;
         --el-color-danger: #f05b53;
-    }
+    } */
 
    
 }

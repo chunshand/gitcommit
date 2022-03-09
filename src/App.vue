@@ -129,7 +129,7 @@ const content = computed(() => {
     if (scope.value) {
         commit += "(" + scope.value + ")";
     }
-    commit += ":" + subject.value;
+    commit += ": " + subject.value;
 
     if (body.value) {
         commit += "\r\n\r\n" + body.value + "\r\n\r\n";
