@@ -1,7 +1,7 @@
 
 
 <template>
-    <div class="w-full p-8">
+    <div class="w-full p-2">
         <ElRow :gutter="0">
             <ElCol
                 :xs="{
@@ -22,16 +22,23 @@
                     offset: 7,
                 }"
             >
-                <div class="text-right">
+                <div class="text-right p-2">
                     <ElButton type="warning" size="small" @click="handleClear"
                         >重置内容</ElButton
                     >
+                    <ElButton
+                        type="success"
+                        size="small"
+                        :disabled="copyDisabled"
+                        @click="copy(content)"
+                        ><span v-if="!copied">复制结果</span>
+                        <span v-else>已复制</span></ElButton
+                    >
                 </div>
-                <ElForm class="w-full" label-position="top" label-width="100px">
-                    <ElFormItem label="类型" :hide-required-asterisk="true">
+                <div class="flex justify-center items-center">
+                    <div class="mx-2">
                         <ElSelect
                             v-model="type"
-                            class="m-2"
                             placeholder="Select"
                             size="large"
                         >
@@ -43,48 +50,30 @@
                             >
                             </ElOption>
                         </ElSelect>
-                    </ElFormItem>
+                    </div>
 
-                    <ElFormItem label="范围">
-                        <ElInput v-model="scope"></ElInput>
-                    </ElFormItem>
+                    <div class="mx-2 w-full">
+                        <ElInput v-model="scope" size="large"></ElInput>
+                    </div>
+                </div>
+                <div class="p-2">
+                    <ElInput v-model="subject" size="large"></ElInput>
+                </div>
+                <div class="p-2">
+                    <ElInput
+                        v-model="body"
+                        type="textarea"
+                        :rows="10"
+                        size="large"
+                    ></ElInput>
+                </div>
 
-                    <ElFormItem label="简短描述" :hide-required-asterisk="true">
-                        <ElInput v-model="subject"></ElInput>
-                    </ElFormItem>
-
-                    <ElFormItem label="内容">
-                        <ElInput
-                            v-model="body"
-                            type="textarea"
-                            :rows="10"
-                        ></ElInput>
-                    </ElFormItem>
-
-                    <!-- <ElFormItem label="最后">
+                <!-- <ElFormItem label="最后">
                         <ElInput v-model="footer" type="textarea"></ElInput>
                     </ElFormItem> -->
-                </ElForm>
 
                 <div class="py-2">
-                    <div class="pb-2">
-                        <ElInput
-                            v-model="content"
-                            type="textarea"
-                            disabled
-                            :rows="10"
-                        ></ElInput>
-                    </div>
-                    <div class="text-right">
-                        <ElButton
-                            type="success"
-                            class="w-40"
-                            :disabled="copyDisabled"
-                            @click="copy(content)"
-                            ><span v-if="!copied">复制</span>
-                            <span v-else>已复制</span></ElButton
-                        >
-                    </div>
+                    <div class="text-right"></div>
                 </div>
             </ElCol>
         </ElRow>
