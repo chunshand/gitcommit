@@ -9,15 +9,12 @@
   },
   "dependencies": {
     "@vueuse/core": "^7.7.1",
-    "element-plus": "^2.0.5",
-    "less": "^4.1.2",
+    "naive-ui": "^2.26.4",
     "vue": "^3.2.25"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.2.0",
-    "autoprefixer": "^10.4.2",
-    "postcss": "^8.4.8",
-    "tailwindcss": "^3.0.23",
+    "unplugin-vue-components": "^0.17.21",
     "vite": "^2.8.0"
   }
 }
