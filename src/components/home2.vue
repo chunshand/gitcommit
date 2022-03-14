@@ -1,7 +1,7 @@
 
 
 <template>
-    <NCard :bordered="false">
+    <NCard :bordered="false" class="card-class">
         <NGrid cols="24" item-responsive responsive="screen">
             <NGridItem span="24 m:12 l:12" offset="0 m:6 l:6">
                 <NSpace vertical>
@@ -37,14 +37,14 @@
                             <NInput
                                 v-model:value="scope"
                                 size="large"
-                                placeholder="范围"
+                                placeholder="范围(非必填)"
                             ></NInput
                         ></NGridItem>
                     </NGrid>
                     <NInput
                         v-model:value="subject"
                         size="large"
-                        placeholder="简短描述"
+                        placeholder="简短描述(必填)"
                     ></NInput>
 
                     <NInput
@@ -52,10 +52,10 @@
                         type="textarea"
                         :rows="10"
                         size="large"
-                        placeholder="具体内容"
+                        placeholder="具体内容(非必填)"
                     ></NInput>
                 </NSpace>
-                <NText depth="3">ctrl + alt 快速复制并关闭 </NText>
+                <NText depth="3">Ctrl + Shift + C 快速复制并关闭 </NText>
                 <!-- <ElFormItem label="最后">
                         <NInput v-model="footer" type="textarea"></NInput>
                     </ElFormItem> -->
@@ -82,7 +82,7 @@ import { useClipboard, useMagicKeys } from "@vueuse/core";
 const message = useMessage();
 
 const keys = useMagicKeys();
-const shiftCtrlC = keys["Ctrl+Alt"];
+const shiftCtrlC = keys["Ctrl+Shift+C"];
 
 watch(shiftCtrlC, (v) => {
     if (v) {
@@ -177,7 +177,8 @@ onMounted(() => {
     }
 });
 const handleCopy = async () => {
-    if (!scope.value) {
+    if (!subject.value) {
+        message.error("必填项必填");
         return;
     }
     let content = handleGetContent();
@@ -188,4 +189,9 @@ const handleCopy = async () => {
     });
 };
 </script>
-
+<style scoped>
+.card-class {
+    width: 100%;
+    height: 100vh;
+}
+</style>
