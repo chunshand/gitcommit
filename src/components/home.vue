@@ -1,110 +1,92 @@
-
-
 <template>
-    <div class="w-full p-2">
-        <ElRow :gutter="0">
-            <ElCol
-                :xs="{
-                    span: 24,
-                }"
-                :sm="{
-                    span: 24,
-                }"
-                :md="{
-                    span: 24,
-                }"
-                :lg="{
-                    span: 12,
-                    offset: 6,
-                }"
-                :xl="{
-                    span: 10,
-                    offset: 7,
-                }"
-            >
-                <div class="text-right p-2">
-                    <ElButton type="warning" size="small" @click="handleClear"
-                        >重置内容</ElButton
-                    >
-                    <ElButton
-                        type="success"
-                        size="small"
-                        :disabled="copyDisabled"
-                        @click="copy(content)"
-                        ><span v-if="!copied">复制结果</span>
-                        <span v-else>已复制</span></ElButton
-                    >
-                   {{isDark}}
-                </div>
-                <div class="flex justify-center items-center">
-                    <div class="mx-2">
-                        <ElSelect
-                            v-model="type"
-                            placeholder="Select"
-                            size="large"
+    <NCard :bordered="false" class="card-class">
+        <NGrid cols="24" item-responsive responsive="screen">
+            <NGridItem span="24 m:12 l:12" offset="0 m:6 l:6">
+                <NSpace vertical>
+                    <NSpace justify="end" size="large">
+                        <NButton
+                            type="warning"
+                            size="small"
+                            @click="handleClear"
+                            >重置内容</NButton
                         >
-                            <ElOption
-                                v-for="item in typeOptions"
-                                :key="item.value"
-                                :label="item.label + '(' + item.value + ')'"
-                                :value="item.value"
-                            >
-                            </ElOption>
-                        </ElSelect>
-                    </div>
 
-                    <div class="mx-2 w-full">
-                        <ElInput
-                            v-model="scope"
-                            size="large"
-                            placeholder="范围"
-                        ></ElInput>
-                    </div>
-                </div>
-                <div class="p-2">
-                    <ElInput
-                        v-model="subject"
+                        <NButton
+                            type="success"
+                            size="small"
+                            :disabled="copyDisabled"
+                            @click="handleCopy()"
+                            ><span v-if="!copied">复制结果</span>
+                            <span v-else>已复制</span>
+                        </NButton>
+                    </NSpace>
+                    <NGrid cols="10">
+                        <NGridItem span="3 800:3">
+                            <NSelect
+                                v-model:value="type"
+                                placeholder="类型"
+                                size="large"
+                                :options="typeOptions"
+                            >
+                            </NSelect>
+                        </NGridItem>
+
+                        <NGridItem span="6 800:6" :offset="1">
+                            <NInput
+                                v-model:value="scope"
+                                size="large"
+                                placeholder="范围(非必填)"
+                            ></NInput
+                        ></NGridItem>
+                    </NGrid>
+                    <NInput
+                        v-model:value="subject"
                         size="large"
-                        placeholder="简短描述"
-                    ></ElInput>
-                </div>
-                <div class="p-2">
-                    <ElInput
-                        v-model="body"
+                        placeholder="简短描述(必填)"
+                    ></NInput>
+
+                    <NInput
+                        v-model:value="body"
                         type="textarea"
                         :rows="10"
                         size="large"
-                        placeholder="具体内容"
-                    ></ElInput>
-                </div>
-
+                        placeholder="具体内容(非必填)"
+                    ></NInput>
+                </NSpace>
+                <NText depth="3">Ctrl + Shift + C 快速复制并关闭 </NText>
                 <!-- <ElFormItem label="最后">
-                        <ElInput v-model="footer" type="textarea"></ElInput>
+                        <NInput v-model="footer" type="textarea"></NInput>
                     </ElFormItem> -->
-
-                <div class="py-2">
-                    <div class="text-right"></div>
-                </div>
-            </ElCol>
-        </ElRow>
-    </div>
+            </NGridItem>
+        </NGrid>
+    </NCard>
 </template>
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch, onMounted, nextTick } from "vue";
 import {
-    ElRow,
-    ElCol,
-    ElForm,
-    ElFormItem,
-    ElSelect,
-    ElOption,
-    ElButton,
-    ElInput,
-} from "element-plus";
-import { useClipboard } from "@vueuse/core";
-import { usePreferredDark  } from "@vueuse/core";
+    NCard,
+    NGrid,
+    NGridItem,
+    NForm,
+    NFormItem,
+    NSelect,
+    NButton,
+    NInput,
+    NSpace,
+    NText,
+    useMessage,
+} from "naive-ui";
+import { useClipboard, useMagicKeys } from "@vueuse/core";
+const message = useMessage();
 
-const isDark = usePreferredDark()
+const keys = useMagicKeys();
+const shiftCtrlC = keys["Ctrl+Shift+C"];
+
+watch(shiftCtrlC, (v) => {
+    if (v) {
+        handleCopy();
+    }
+});
 const typeOptions = ref([
     {
         value: "feat",
@@ -161,6 +143,19 @@ const content = computed(() => {
     }
     return commit;
 });
+const handleGetContent = () => {
+    let commit = "";
+    commit += type.value;
+    if (scope.value) {
+        commit += "(" + scope.value + ")";
+    }
+    commit += ": " + subject.value;
+
+    if (body.value) {
+        commit += "\r\n\r\n" + body.value + "\r\n\r\n";
+    }
+    return commit;
+};
 const copyDisabled = computed((): boolean => {
     return type.value && subject.value ? false : true;
 });
@@ -173,5 +168,28 @@ const handleClear = () => {
     body.value = "";
     type.value = typeOptions.value[0].value;
 };
+let utools = null;
+onMounted(() => {
+    if (window["utools"]) {
+        utools = window["utools"];
+    }
+});
+const handleCopy = async () => {
+    if (!subject.value) {
+        message.error("必填项必填");
+        return;
+    }
+    let content = handleGetContent();
+    await copy(content);
+    message.success("复制成功");
+    nextTick(() => {
+        utools && utools.hideMainWindow();
+    });
+};
 </script>
-
+<style scoped>
+.card-class {
+    width: 100%;
+    height: 100vh;
+}
+</style>

@@ -5,17 +5,8 @@
 declare module 'vue' {
   export interface GlobalComponents {
     Home: typeof import('./src/components/home.vue')['default']
-    Home2: typeof import('./src/components/home2.vue')['default']
-    NButton: typeof import('naive-ui')['NButton']
-    NCard: typeof import('naive-ui')['NCard']
     NConfigProvider: typeof import('naive-ui')['NConfigProvider']
-    NGrid: typeof import('naive-ui')['NGrid']
-    NGridItem: typeof import('naive-ui')['NGridItem']
-    NInput: typeof import('naive-ui')['NInput']
     NMessageProvider: typeof import('naive-ui')['NMessageProvider']
-    NSelect: typeof import('naive-ui')['NSelect']
-    NSpace: typeof import('naive-ui')['NSpace']
-    NText: typeof import('naive-ui')['NText']
   }
 }
 

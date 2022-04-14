@@ -12,7 +12,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { darkTheme } from "naive-ui";
-import Home from "./components/home2.vue";
 const theme = ref(null);
 const loadFunc = () => {
     if (utools.isDarkColors()) {
