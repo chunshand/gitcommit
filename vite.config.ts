@@ -13,6 +13,7 @@ export default defineConfig({
         }),
         Components({
             resolvers: [NaiveUiResolver()],
+            dts: true
         }),
     ],
 
