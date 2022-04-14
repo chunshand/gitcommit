@@ -1,5 +1,3 @@
-
-
 <template>
     <NConfigProvider :theme="theme">
         <NMessageProvider>
@@ -10,26 +8,20 @@
     <NButton @click="theme = null">浅色</NButton> -->
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { onMounted, computed } from "vue";
 import { darkTheme } from "naive-ui";
-import Home from "./components/home2.vue";
-const theme = ref(null);
-const loadFunc = () => {
-    if (utools.isDarkColors()) {
-        theme.value = darkTheme;
-    } else {
-        theme.value = null;
-    }
-};
+import { BuiltInGlobalTheme } from "naive-ui/lib/themes/interface";
+const isDark = ref(false);
+const theme = computed<BuiltInGlobalTheme | null>(() => {
+    return isDark.value ? darkTheme : null
+})
 let utools = null;
-if (window["utools"]) {
-    utools = window["utools"];
-    utools.onPluginReady(() => {
-        console.log("插件装配完成，已准备好");
-        loadFunc();
-    });
-    utools.onPluginEnter(({ code, type, payload }) => {
-        loadFunc();
-    });
-}
+onMounted(() => {
+    if (window["utools"]) {
+        utools = window["utools"];
+        utools.onPluginEnter(() => {
+            isDark.value = utools.isDarkColors();
+        });
+    }
+})
 </script>

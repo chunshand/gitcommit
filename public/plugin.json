@@ -1,13 +1,14 @@
 {
     "main": "./index.html",
     "logo": "logo.png",
-    "features": [
-        {
-            "code": "git-commit",
-            "explain": "帮助开发快速完成git commit message",
-            "cmds": [
-                "gitc"
-            ]
-        }
-    ]
+    "features": [{
+        "code": "git-commit",
+        "explain": "帮助开发快速完成git commit message",
+        "cmds": [
+            "gitc"
+        ]
+    }],
+    "development": {
+        "main": "./index.html"
+    }
 }
