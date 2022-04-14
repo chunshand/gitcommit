@@ -54,7 +54,7 @@
                         placeholder="具体内容(非必填)"
                     ></NInput>
                 </NSpace>
-                <NText depth="3">Ctrl + Shift + C 快速复制并关闭 </NText>
+                <NText depth="3">Ctrl /Command + Alt 快速复制并关闭 </NText>
                 <!-- <ElFormItem label="最后">
                         <NInput v-model="footer" type="textarea"></NInput>
                     </ElFormItem> -->
@@ -66,14 +66,24 @@
 import {  useMessage} from "naive-ui";
 const message = useMessage();
 
-const keys = useMagicKeys();
-const shiftCtrlC = keys["Ctrl+Shift+C"];
+const { ctrl_alt } = useMagicKeys();
 
-watch(shiftCtrlC, (v) => {
-    if (v) {
-        handleCopy();
+whenever(ctrl_alt, () => {
+    handleCopy()
+} )
+
+const handleCopy = async () => {
+    if (!subject.value) {
+        message.error("必填项必填");
+        return;
     }
-});
+    let content = handleGetContent();
+    await copy(content);
+    message.success("复制成功");
+    nextTick(() => {
+        utools && utools.hideMainWindow();
+    });
+};
 // https://github.com/conventional-changelog/commitlint/blob/master/%40commitlint/config-conventional/index.js
 //  TODO 后期引入默认emoji
 // TODO 后期引入国际化
@@ -182,18 +192,7 @@ onMounted(() => {
         utools = window["utools"];
     }
 });
-const handleCopy = async () => {
-    if (!subject.value) {
-        message.error("必填项必填");
-        return;
-    }
-    let content = handleGetContent();
-    await copy(content);
-    message.success("复制成功");
-    nextTick(() => {
-        utools && utools.hideMainWindow();
-    });
-};
+
 </script>
 <style scoped>
 .card-class {
