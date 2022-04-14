@@ -21,9 +21,10 @@
                         </NButton>
                     </NSpace>
                     <NGrid cols="10">
-                        <NGridItem span="3 800:3">
+                        <NGridItem span="4 800:4">
                             <NSelect
                                 v-model:value="type"
+                                filterable
                                 placeholder="类型"
                                 size="large"
                                 :options="typeOptions"
@@ -31,7 +32,7 @@
                             </NSelect>
                         </NGridItem>
 
-                        <NGridItem span="6 800:6" :offset="1">
+                        <NGridItem span="5 800:5" :offset="1">
                             <NInput
                                 v-model:value="scope"
                                 size="large"
@@ -62,21 +63,7 @@
     </NCard>
 </template>
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick } from "vue";
-import {
-    NCard,
-    NGrid,
-    NGridItem,
-    NForm,
-    NFormItem,
-    NSelect,
-    NButton,
-    NInput,
-    NSpace,
-    NText,
-    useMessage,
-} from "naive-ui";
-import { useClipboard, useMagicKeys } from "@vueuse/core";
+import {  useMessage} from "naive-ui";
 const message = useMessage();
 
 const keys = useMagicKeys();
@@ -87,35 +74,56 @@ watch(shiftCtrlC, (v) => {
         handleCopy();
     }
 });
+// https://github.com/conventional-changelog/commitlint/blob/master/%40commitlint/config-conventional/index.js
+//  TODO 后期引入默认emoji
+// TODO 后期引入国际化
 const typeOptions = ref([
     {
         value: "feat",
-        label: "新功能",
+        label: "新功能(feat)",
     },
     {
         value: "fix",
-        label: "修补bug",
+        label: "修复bug(fix)",
     },
     {
         value: "docs",
-        label: "文档",
+        label: "文档变更(docs)",
     },
     {
         value: "style",
-        label: "格式",
+        label: "无关代码的格式(style)",
     },
     {
         value: "refactor",
-        label: "重构",
+        label: "重构(refactor)",
     },
-    {
+     {
         value: "perf",
-        label: "性能 体验优化",
+        label: "优化性能(perf)",
     },
     {
         value: "test",
-        label: "增加 更新测试",
+        label: "增加或更新测试(test)",
     },
+    
+    {
+        value: "build",
+        label: "构建系统或外部依赖更改(build)",
+    },    
+    {
+        value: "ci",
+        label: "CI配置或脚本变动(ci)",
+    },
+       {
+        value: "chore",
+        label: "不影响代码的变动(chore)",
+    },
+       {
+        value: "revert",
+        label: "回退之前版本(revert)",
+    },
+    
 ]);
 // 类型
 const type = ref("feat");
