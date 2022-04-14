@@ -10,6 +10,7 @@
   "dependencies": {
     "@vueuse/core": "^7.7.1",
     "naive-ui": "^2.26.4",
+    "unplugin-auto-import": "^0.7.1",
     "vue": "^3.2.25"
   },
   "devDependencies": {
