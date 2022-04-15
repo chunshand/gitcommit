@@ -8,20 +8,13 @@
     <NButton @click="theme = null">浅色</NButton> -->
 </template>
 <script setup lang="ts">
-import { onMounted, computed } from "vue";
 import { darkTheme } from "naive-ui";
-import { BuiltInGlobalTheme } from "naive-ui/lib/themes/interface";
+import usePluginEnter from "./composables/usePluginEnter";
 const isDark = ref(false);
-const theme = computed<BuiltInGlobalTheme | null>(() => {
+const theme = computed<typeof darkTheme | null>(() => {
     return isDark.value ? darkTheme : null
 })
-let utools = null;
-onMounted(() => {
-    if (window["utools"]) {
-        utools = window["utools"];
-        utools.onPluginEnter(() => {
-            isDark.value = utools.isDarkColors();
-        });
-    }
+usePluginEnter(()=> {
+    isDark.value = window?.utools.isDarkColors()
 })
 </script>
