@@ -64,8 +64,9 @@
 </template>
 <script setup lang="ts">
 import {  useMessage} from "naive-ui";
-import usePluginEnter from "src/composables/usePluginEnter";
+import useUtools from "../composeables/useUtools";
 const message = useMessage();
+const utools = useUtools()
 
 const { ctrl_alt } = useMagicKeys();
 
@@ -82,7 +83,7 @@ const handleCopy = async () => {
     await copy(content);
     message.success("复制成功");
     nextTick(() => {
-        utools.value?.hideMainWindow();
+        utools?.hideMainWindow();
     });
 };
 // https://github.com/conventional-changelog/commitlint/blob/master/%40commitlint/config-conventional/index.js
@@ -187,11 +188,6 @@ const handleClear = () => {
     body.value = "";
     type.value = typeOptions.value[0].value;
 };
-const utools = ref<UToolsApi | null>(null);
-
-usePluginEnter(() => {
-    utools.value = window?.utools
-})
 
 </script>
 <style scoped>
