@@ -64,7 +64,7 @@
 </template>
 <script setup lang="ts">
 import {  useMessage} from "naive-ui";
-import useUtools from "../composeables/useUtools";
+import useUtools from "../composables/useUtools";
 const message = useMessage();
 const utools = useUtools()
 
