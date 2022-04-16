@@ -9,7 +9,7 @@ export default function usePluginEnter(
 ) {
   onMounted(() => {
     window?.utools.onPluginEnter((action) => {
-      return hook(action);
+        return hook(action);
     });
   });
 }
