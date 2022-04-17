@@ -54,7 +54,6 @@ import useUtools from "../composables/useUtools";
 const message = useMessage();
 const utools = useUtools()
 
-console.log(nameToEmoji)
 
 const { ctrl_alt } = useMagicKeys();
 
