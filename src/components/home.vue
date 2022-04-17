@@ -232,12 +232,8 @@ const emojiOptions = computed(() => {
 })
 
 const content = computed(() => {
-    const commit =
-        String.raw`${type.value}(${scope.value ?? ''}): ${emoji.value} ${subject.value}
-
-${body.value}
-
-`;
+    let commit = `${type.value}(${scope.value ?? ''}): ${emoji.value} ${subject.value}`;
+    commit += body.value && `\r\n\r\n${body.value}\r\n\r\n`
     return commit;
 });
 
