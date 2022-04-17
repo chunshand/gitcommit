@@ -9,6 +9,6 @@
         ]
     }],
     "development": {
-        "main": "./index.html"
+        "main": "http://localhost:8979/"
     }
 }
