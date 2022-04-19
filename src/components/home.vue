@@ -79,7 +79,7 @@ const defatltEmoji = ref("✨");
 const type = ref("feat");
 watch(type, (val) => {
     // console.log(val)
-    emoji.value = typeOptions.value.find((item) => item.value === val)?.emoji ?? defatltEmoji
+    emoji.value = typeOptions.value.find((item) => item.value === val)?.emoji ?? defatltEmoji.value
 })
 // 范围
 const scope = ref("");
@@ -92,7 +92,7 @@ const body = ref("");
 // 最后
 const footer = ref("");
 
-const emoji = ref(defatltEmoji)
+const emoji = ref(defatltEmoji.value)
 
 const emojiOptions = computed(() => {
     return rawEmojis.map((item) => {
