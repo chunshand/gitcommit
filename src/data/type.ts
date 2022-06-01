@@ -27,7 +27,7 @@ export const typeData = [
     {
         value: "perf",
         label: "优化性能(perf)",
-        emoji: "⚡️",
+        emoji: "⚡",
     },
     {
         value: "test",
@@ -55,5 +55,4 @@ export const typeData = [
         label: "回退之前版本(revert)",
         emoji: "⏪",
     },
-
 ];
