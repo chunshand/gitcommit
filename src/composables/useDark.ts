@@ -1,10 +1,9 @@
-import { Ref } from "vue";
-import usePluginEnter from "./usePluginEnter";
+import { Ref, onMounted } from "vue";
 
 export default function useDark(): Ref<boolean> {
   const isDark = ref<boolean>(false);
-  usePluginEnter(() => {
+  onMounted(() => {
     isDark.value = window?.utools.isDarkColors();
-  });
+  })
   return isDark;
 }

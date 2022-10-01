@@ -7,9 +7,7 @@ export interface IPluginEnterAction {
 export default function usePluginEnter(
   hook: (action: IPluginEnterAction) => unknown
 ) {
-  onMounted(() => {
-    window?.utools?.onPluginEnter((action) => {
-        return hook(action);
-    });
+  window?.utools?.onPluginEnter((action) => {
+    return hook(action);
   });
 }

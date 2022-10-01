@@ -19,7 +19,7 @@
                         </NGridItem>
 
                         <NGridItem span="6 800:6">
-                            <NInput v-model:value="scope" size="large" placeholder="范围(非必填)"></NInput>
+                            <NInput v-model:value="scope" size="large" placeholder="范围(非必填)" autofocus></NInput>
                         </NGridItem>
                         <NGridItem span="4 800:4">
                             <NSelect v-model:value="emoji" placeholder="emoji" size="large" :options="emojiOptions"
@@ -27,7 +27,8 @@
                             </NSelect>
                         </NGridItem>
                         <NGridItem span="6 800:6">
-                            <NInput v-model:value="subject" status="warning" size="large" placeholder="简短描述(必填)">
+                            <NInput v-model:value="subject" status="warning" size="large" placeholder="简短描述(必填)"
+                                >
                             </NInput>
                         </NGridItem>
                         <NGridItem span="10">
@@ -39,7 +40,7 @@
 
 
                 </NSpace>
-                <NText depth="3">Ctrl /Command + Alt 快速复制并关闭 </NText>
+                <NText depth="3">ctrl + Shift + c 复制结果 tab 快速切换输入框</NText>
                 <!-- <ElFormItem value="最后">
                         <NInput v-model="footer" type="textarea"></NInput>
                     </ElFormItem> -->
@@ -53,14 +54,21 @@ import { nameToEmoji } from 'gemoji'
 import useUtools from "../composables/useUtools";
 import { rawEmojis, typeData } from "../data";
 const message = useMessage();
-const utools = useUtools()
-const { ctrl_alt } = useMagicKeys();
-whenever(ctrl_alt, () => {
+const utools = useUtools((data) => {
+    let payload: string = data.payload as string;
+    let cmd: string = payload.replace('gitc', '');
+    if (cmd) {
+        type.value = cmd;
+    }
+})
+const keys = useMagicKeys();
+const shiftCtrlC = keys['Shift+Ctrl+C']
+whenever(shiftCtrlC, () => {
     handleCopy()
 })
 const handleCopy = async () => {
     if (!subject.value) {
-        message.error("必填项必填");
+        message.error("简短描述必填");
         return;
     }
     await copy(content.value);
@@ -70,8 +78,6 @@ const handleCopy = async () => {
     });
 };
 // https://github.com/conventional-changelog/commitlint/blob/master/%40commitlint/config-conventional/index.js
-//  TODO 后期引入默认emoji
-// TODO 后期引入国际化
 const typeOptions = ref(typeData);
 // 默认emoji
 const defatltEmoji = ref("✨");
@@ -90,7 +96,7 @@ const subject = ref("");
 const body = ref("");
 
 // 最后
-const footer = ref("");
+// const footer = ref("");
 
 const emoji = ref(defatltEmoji.value)
 
