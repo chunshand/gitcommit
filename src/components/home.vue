@@ -4,6 +4,12 @@
             <NGridItem span="24 m:12 l:12" offset="0 m:6 l:6">
                 <NSpace vertical>
                     <NSpace justify="end" size="large">
+                        <NButton size="small" @click="help=true">
+                            帮助
+                        </NButton>
+                        <NButton size="small" @click="show=true">
+                            预览
+                        </NButton>
                         <NButton type="warning" size="small" @click="handleClear">重置内容</NButton>
 
                         <NButton type="success" size="small" :disabled="copyDisabled" @click="handleCopy()"><span
@@ -27,8 +33,7 @@
                             </NSelect>
                         </NGridItem>
                         <NGridItem span="6 800:6">
-                            <NInput v-model:value="subject" status="warning" size="large" placeholder="简短描述(必填)"
-                                >
+                            <NInput v-model:value="subject" status="warning" size="large" placeholder="简短描述(必填)">
                             </NInput>
                         </NGridItem>
                         <NGridItem span="10">
@@ -40,13 +45,50 @@
 
 
                 </NSpace>
-                <NText depth="3">ctrl + Shift + c 复制结果 tab 快速切换输入框</NText>
+                <br />
+
+
                 <!-- <ElFormItem value="最后">
                         <NInput v-model="footer" type="textarea"></NInput>
                     </ElFormItem> -->
             </NGridItem>
+
         </NGrid>
     </NCard>
+    <NDrawer v-model:show="show" placement="bottom">
+        <NDrawerContent>
+            <NSpace vertical>
+                <NText depth="1">
+                    预览：
+                </NText>
+                <NInput :value="content" type="textarea" autosize size="large" disabled>
+                </NInput>
+            </NSpace>
+
+        </NDrawerContent>
+    </NDrawer>
+    <NDrawer v-model:show="help" height="80%" placement="bottom">
+        <NDrawerContent>
+            <NSpace vertical>
+                <NText depth="1">
+                    帮助：
+                </NText>
+                <NText depth="3">
+                    <NText code>Ctrl + Shift + C</NText> 快速复制 并关闭工具
+                </NText>
+                <NText depth="3">
+                    <NText code>Ctrl + Shift + R</NText> 重置内容
+                </NText>
+                <NText depth="3">
+                    <NText code>Ctrl + P</NText> 快速打开预览，关闭预览
+                </NText>
+                <NText depth="3">
+                    <NText code>Tab</NText> 快速切换输入框
+                </NText>
+            </NSpace>
+
+        </NDrawerContent>
+    </NDrawer>
 </template>
 <script setup lang="ts">
 import { useMessage } from "naive-ui";
@@ -63,19 +105,31 @@ const utools = useUtools((data) => {
 })
 const keys = useMagicKeys();
 const shiftCtrlC = keys['Shift+Ctrl+C']
+const shiftCtrlR = keys['Shift+Ctrl+R']
+const show = ref(false);
+const help = ref(false);
+const CtrlP = keys['Ctrl+P']
+// 复制
 whenever(shiftCtrlC, () => {
     handleCopy()
 })
+// 预览
+whenever(CtrlP, () => {
+    show.value = !show.value;
+})
+// 重置内容
+whenever(shiftCtrlR, () => {
+    handleClear()
+})
 const handleCopy = async () => {
     if (!subject.value) {
-        message.error("简短描述必填");
+        message.error("简短描述 必填");
+        show.value = false;
         return;
     }
     await copy(content.value);
-    message.success("复制成功");
-    nextTick(() => {
-        utools?.hideMainWindow();
-    });
+    show.value = false;
+    utools?.hideMainWindow();
 };
 // https://github.com/conventional-changelog/commitlint/blob/master/%40commitlint/config-conventional/index.js
 const typeOptions = ref(typeData);
@@ -119,7 +173,7 @@ const content = computed(() => {
 const copyDisabled = computed((): boolean => {
     return type.value && subject.value ? false : true;
 });
-const { text, copy, copied, isSupported } = useClipboard({
+const { copy, copied } = useClipboard({
     source: content,
 });
 const handleClear = () => {
