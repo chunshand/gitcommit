@@ -4,10 +4,10 @@
             <NGridItem span="24 m:12 l:12" offset="0 m:6 l:6">
                 <NSpace vertical>
                     <NSpace justify="end" size="large">
-                        <NButton size="small" @click="help=true">
+                        <NButton size="small" @click="help = true">
                             帮助
                         </NButton>
-                        <NButton size="small" @click="show=true">
+                        <NButton size="small" @click="show = true">
                             预览
                         </NButton>
                         <NButton type="warning" size="small" @click="handleClear">重置内容</NButton>
@@ -165,7 +165,7 @@ const emojiOptions = computed(() => {
 })
 
 const content = computed(() => {
-    let commit = `${type.value}(${scope.value ?? ''}): ${emoji.value} ${subject.value}`;
+    let commit = `${type.value}${scope.value ? '(' + scope.value + ')' : ''}: ${emoji.value} ${subject.value}`;
     commit += body.value && `\r\n\r\n${body.value}\r\n\r\n`
     return commit;
 });

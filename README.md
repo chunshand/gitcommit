@@ -1,5 +1,18 @@
- - 新增黑色模式 跟随utools
- - 修改快捷键 改为了 ctrl+shift+c
- - 修复非必填项判断的问题
+# gitcommit
 
-一个简单 git Commit Message 书写的表单工具。
+`gitcommit`是`utools`工具关于 `git commit message` 快速编写插件.
+
+- 方便预览和复制
+- 带有相对应类型属性的`emoji`
+
+
+
+安装，下载 `utools` 工具，插件市场搜索`gitc`
+
+- 快捷键 `gitc`
+
+
+![./preview.png](./preview.png)
+
+
+对于不想背类型英文的小伙伴，是个不错的选择。
