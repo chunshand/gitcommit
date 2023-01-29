@@ -41,18 +41,29 @@
                                 placeholder="具体内容(非必填)">
                             </NInput>
                         </NGridItem>
+                        <NGridItem span="10">
+
+                            <p class="higlogtag-title">历史记录 <NButton quaternary type="warning" size="tiny"
+                                    @click="handleClearHigLog">清空</NButton>
+                            </p>
+                            <NSpace inline size="large">
+                                <span class="higlogtag" v-for="item, index in historyLog.reverse()" :key="index"
+                                    @click.native="handleCopyHistoryLog(item)"
+                                    @dblclick.native="handleEditHistoryLog(item)">
+                                    <NEllipsis style="max-width: 240px" :tooltip="false">
+                                        {{ item.content }}
+                                        <template #tooltip>
+                                            <div style="text-align: center;max-width:240px">
+                                                {{ item.content }}
+                                            </div>
+                                        </template>
+                                    </NEllipsis>
+                                </span>
+                            </NSpace>
+                        </NGridItem>
                     </NGrid>
-
-
                 </NSpace>
-                <br />
-
-
-                <!-- <ElFormItem value="最后">
-                        <NInput v-model="footer" type="textarea"></NInput>
-                    </ElFormItem> -->
             </NGridItem>
-
         </NGrid>
     </NCard>
     <NDrawer v-model:show="show" placement="bottom">
@@ -85,8 +96,10 @@
                 <NText depth="3">
                     <NText code>Tab</NText> 快速切换输入框
                 </NText>
+                <NText depth="3">
+                    历史记录最多保存5条历史，单击复制信息内容，双击将对应信息内容设置到表单，方便二次编辑
+                </NText>
             </NSpace>
-
         </NDrawerContent>
     </NDrawer>
 </template>
@@ -95,6 +108,17 @@ import { useMessage } from "naive-ui";
 import { nameToEmoji } from 'gemoji'
 import useUtools from "../composables/useUtools";
 import { rawEmojis, typeData } from "../data";
+let clickTimer: any = null;
+const _historyLogKEY = "historyLog";
+interface commitInterface {
+    type: string,
+    scope?: string,
+    emoji: string,
+    subject: string,
+    body?: string
+    content: string
+}
+const historyLog = ref<commitInterface[]>([]);
 const message = useMessage();
 const utools = useUtools((data) => {
     let payload: string = data.payload as string;
@@ -128,6 +152,19 @@ const handleCopy = async () => {
         return;
     }
     await copy(content.value);
+    if (historyLog.value.length >= 5) {
+        historyLog.value.splice(0, 1)
+    }
+    historyLog.value.push(
+        {
+            type: type.value,
+            scope: scope.value,
+            emoji: emoji.value,
+            subject: subject.value,
+            body: body.value,
+            content: content.value
+        });
+    utools?.dbStorage.setItem(_historyLogKEY, JSON.stringify(historyLog.value))
     show.value = false;
     utools?.hideMainWindow();
 };
@@ -149,9 +186,6 @@ const subject = ref("");
 // body
 const body = ref("");
 
-// 最后
-// const footer = ref("");
-
 const emoji = ref(defatltEmoji.value)
 
 const emojiOptions = computed(() => {
@@ -165,7 +199,7 @@ const emojiOptions = computed(() => {
 })
 
 const content = computed(() => {
-    let commit = `${type.value}${scope.value ? '(' + scope.value + ')' : ''}: ${emoji.value} ${subject.value}`;
+    let commit: string = `${type.value}${scope.value ? '(' + scope.value + ')' : ''}: ${emoji.value} ${subject.value}`;
     commit += body.value && `\r\n\r\n${body.value}\r\n\r\n`
     return commit;
 });
@@ -183,10 +217,55 @@ const handleClear = () => {
     type.value = typeOptions.value[0].value;
 };
 
+const handleCopyHistoryLog = (item: commitInterface) => {
+    if (clickTimer) {
+        clearTimeout(clickTimer);
+        clickTimer = null;
+    }
+    clickTimer = setTimeout(async () => {
+        await copy(item.content);
+        message.success("复制成功");
+    }, 300);
+}
+const handleEditHistoryLog = (item: commitInterface) => {
+    if (clickTimer) {
+        clearTimeout(clickTimer);
+        clickTimer = null;
+    }
+    subject.value = item.subject;
+    scope.value = item.scope ?? '';
+    body.value = item.body ?? "";
+    type.value = item.type;
+    message.success("双击");
+}
+
+const handleClearHigLog = () => {
+    historyLog.value = [];
+    utools?.dbStorage.setItem(_historyLogKEY, JSON.stringify([]));
+}
+
+onMounted(() => {
+    let list = utools?.dbStorage.getItem(_historyLogKEY);
+    historyLog.value = list ? JSON.parse(list) : [];
+})
 </script>
 <style scoped>
 .card-class {
     width: 100%;
     height: 100vh;
+}
+
+.higlogtag-title {
+    margin: 0;
+    padding-bottom: 8px;
+    font-size: 12px;
+}
+
+.higlogtag {
+    cursor: pointer;
+    border: 1px solid #ccc;
+    padding: 4px;
+    border-radius: 4px;
+    user-select: none;
 }
 </style>
