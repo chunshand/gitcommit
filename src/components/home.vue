@@ -42,24 +42,21 @@
                             </NInput>
                         </NGridItem>
                         <NGridItem span="10">
-
                             <p class="higlogtag-title">历史记录 <NButton quaternary type="warning" size="tiny"
                                     @click="handleClearHigLog">清空</NButton>
                             </p>
-                            <NSpace inline size="large">
-                                <span class="higlogtag" v-for="item, index in historyLog.reverse()" :key="index"
-                                    @click.native="handleCopyHistoryLog(item)"
-                                    @dblclick.native="handleEditHistoryLog(item)">
-                                    <NEllipsis style="max-width: 240px" :tooltip="false">
-                                        {{ item.content }}
-                                        <template #tooltip>
-                                            <div style="text-align: center;max-width:240px">
-                                                {{ item.content }}
-                                            </div>
-                                        </template>
-                                    </NEllipsis>
-                                </span>
-                            </NSpace>
+                            <span class="higlogtag" v-for="item, index in historyLog" :key="index"
+                                @click.native="handleCopyHistoryLog(item)"
+                                @dblclick.native="handleEditHistoryLog(item)">
+                                <NEllipsis style="max-width: 240px" :tooltip="false">
+                                    {{ item.content }}
+                                    <template #tooltip>
+                                        <div style="text-align: center;max-width:240px">
+                                            {{ item.content }}
+                                        </div>
+                                    </template>
+                                </NEllipsis>
+                            </span>
                         </NGridItem>
                     </NGrid>
                 </NSpace>
@@ -120,12 +117,19 @@ interface commitInterface {
 }
 const historyLog = ref<commitInterface[]>([]);
 const message = useMessage();
-const utools = useUtools((data) => {
+useUtools((data) => {
     let payload: string = data.payload as string;
     let cmd: string = payload.replace('gitc', '');
     if (cmd) {
         type.value = cmd;
     }
+    try {
+        let list = window?.utools?.dbStorage.getItem(_historyLogKEY);
+        historyLog.value = list ? JSON.parse(list) : [];
+    } catch (error) {
+        historyLog.value = [];
+    }
+
 })
 const keys = useMagicKeys();
 const shiftCtrlC = keys['Shift+Ctrl+C']
@@ -164,9 +168,9 @@ const handleCopy = async () => {
             body: body.value,
             content: content.value
         });
-    utools?.dbStorage.setItem(_historyLogKEY, JSON.stringify(historyLog.value))
+    window?.utools?.dbStorage.setItem(_historyLogKEY, JSON.stringify(historyLog.value))
     show.value = false;
-    utools?.hideMainWindow();
+    window?.utools?.hideMainWindow();
 };
 // https://github.com/conventional-changelog/commitlint/blob/master/%40commitlint/config-conventional/index.js
 const typeOptions = ref(typeData);
@@ -175,7 +179,6 @@ const defatltEmoji = ref("✨");
 // 类型
 const type = ref("feat");
 watch(type, (val) => {
-    // console.log(val)
     emoji.value = typeOptions.value.find((item) => item.value === val)?.emoji ?? defatltEmoji.value
 })
 // 范围
@@ -236,18 +239,15 @@ const handleEditHistoryLog = (item: commitInterface) => {
     scope.value = item.scope ?? '';
     body.value = item.body ?? "";
     type.value = item.type;
-    message.success("双击");
+    message.success("设置成功");
 }
 
 const handleClearHigLog = () => {
     historyLog.value = [];
-    utools?.dbStorage.setItem(_historyLogKEY, JSON.stringify([]));
+    window?.utools?.dbStorage.setItem(_historyLogKEY, JSON.stringify([]));
 }
 
-onMounted(() => {
-    let list = utools?.dbStorage.getItem(_historyLogKEY);
-    historyLog.value = list ? JSON.parse(list) : [];
-})
+
 </script>
 <style scoped>
 .card-class {
@@ -267,5 +267,8 @@ onMounted(() => {
     padding: 4px;
     border-radius: 4px;
     user-select: none;
+    margin-right: 4px;
+    margin-top: 4px;
+    display: inline-block;
 }
 </style>
