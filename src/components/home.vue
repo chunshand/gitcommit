@@ -4,7 +4,8 @@
             <NGridItem span="24 m:24 l:24">
                 <NSpace vertical>
                     <NSpace justify="end" align="center" size="large">
-                        <NCheckbox v-model:checked="ISEmoji" title="是否开启Emoji">Emoji</NCheckbox>
+                        <NCheckbox v-model:checked="ISEmoji" title="是否开启Emoji" :on-update:checked="handleISEmojiChange">Emoji
+                        </NCheckbox>
                         <NButton size="small" @click="help = true">
                             帮助
                         </NButton>
@@ -107,6 +108,7 @@ import useUtools from "../composables/useUtools";
 import { rawEmojis, typeData } from "../data";
 let clickTimer: any = null;
 const _historyLogKEY = "historyLog";
+const _ISEmojiKey = "ISEmoji";
 interface commitInterface {
     type: string,
     scope?: string,
@@ -126,6 +128,8 @@ useUtools((data) => {
     try {
         let list = window?.utools?.dbStorage.getItem(_historyLogKEY);
         historyLog.value = list ? JSON.parse(list) : [];
+        let ISEmojiValue = window?.utools?.dbStorage.getItem(_ISEmojiKey) ? true : false;
+        ISEmoji.value = ISEmojiValue;
     } catch (error) {
         historyLog.value = [];
     }
@@ -150,6 +154,10 @@ whenever(CtrlP, () => {
 whenever(shiftCtrlR, () => {
     handleClear()
 })
+const handleISEmojiChange = (value:any) => {
+    window?.utools?.dbStorage.setItem(_ISEmojiKey, value)
+    ISEmoji.value = value;
+}
 const handleCopy = async () => {
     if (!subject.value) {
         message.error("简短描述 必填");
