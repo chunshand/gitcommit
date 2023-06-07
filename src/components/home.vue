@@ -1,9 +1,10 @@
 <template>
     <NCard :bordered="false" class="card-class">
         <NGrid cols="24" item-responsive responsive="screen">
-            <NGridItem span="24 m:12 l:12" offset="0 m:6 l:6">
+            <NGridItem span="24 m:24 l:24">
                 <NSpace vertical>
-                    <NSpace justify="end" size="large">
+                    <NSpace justify="end" align="center" size="large">
+                        <NCheckbox v-model:checked="ISEmoji" title="是否开启Emoji">Emoji</NCheckbox>
                         <NButton size="small" @click="help = true">
                             帮助
                         </NButton>
@@ -11,7 +12,7 @@
                             预览
                         </NButton>
                         <NButton type="warning" size="small" @click="handleClear">重置内容</NButton>
-
+                        &nbsp;
                         <NButton type="success" size="small" :disabled="copyDisabled" @click="handleCopy()"><span
                                 v-if="!copied">复制结果</span>
                             <span v-else>已复制</span>
@@ -19,26 +20,26 @@
                     </NSpace>
                     <NGrid cols="10" x-gap="12" y-gap="8">
                         <NGridItem span="4 800:4">
-                            <NSelect v-model:value="type" filterable placeholder="类型" size="large"
-                                :options="typeOptions">
+                            <NSelect v-model:value="type" filterable placeholder="类型" size="large" :options="typeOptions">
+                            </NSelect>
+                        </NGridItem>
+                        <NGridItem span="6 800:6">
+                            <NInput v-model:value="scope" size="large" placeholder="范围(非必填)" autofocus></NInput>
+                        </NGridItem>
+                        <NGridItem span="4  800:4">
+                            <NSelect v-model:value="emoji" placeholder="emoji" size="large" :options="emojiOptions"
+                                filterable :disabled="!ISEmoji">
                             </NSelect>
                         </NGridItem>
 
                         <NGridItem span="6 800:6">
-                            <NInput v-model:value="scope" size="large" placeholder="范围(非必填)" autofocus></NInput>
-                        </NGridItem>
-                        <NGridItem span="4 800:4">
-                            <NSelect v-model:value="emoji" placeholder="emoji" size="large" :options="emojiOptions"
-                                filterable>
-                            </NSelect>
-                        </NGridItem>
-                        <NGridItem span="6 800:6">
-                            <NInput v-model:value="subject" status="warning" size="large" placeholder="简短描述(必填)">
+                            <NInput v-model:value="subject" :maxlength="50" status="warning" size="large"
+                                placeholder="简短描述(必填),最多50字">
                             </NInput>
                         </NGridItem>
+
                         <NGridItem span="10">
-                            <NInput v-model:value="body" type="textarea" :rows="10" size="large"
-                                placeholder="具体内容(非必填)">
+                            <NInput v-model:value="body" type="textarea" :rows="10" size="large" placeholder="具体内容(非必填)">
                             </NInput>
                         </NGridItem>
                         <NGridItem span="10">
@@ -46,8 +47,7 @@
                                     @click="handleClearHigLog">清空</NButton>
                             </p>
                             <span class="higlogtag" v-for="item, index in historyLog" :key="index"
-                                @click.native="handleCopyHistoryLog(item)"
-                                @dblclick.native="handleEditHistoryLog(item)">
+                                @click.native="handleCopyHistoryLog(item)" @dblclick.native="handleEditHistoryLog(item)">
                                 <NEllipsis style="max-width: 240px" :tooltip="false">
                                     {{ item.content }}
                                     <template #tooltip>
@@ -137,6 +137,7 @@ const shiftCtrlR = keys['Shift+Ctrl+R']
 const show = ref(false);
 const help = ref(false);
 const CtrlP = keys['Ctrl+P']
+const ISEmoji = ref(true);
 // 复制
 whenever(shiftCtrlC, () => {
     handleCopy()
@@ -152,6 +153,11 @@ whenever(shiftCtrlR, () => {
 const handleCopy = async () => {
     if (!subject.value) {
         message.error("简短描述 必填");
+        show.value = false;
+        return;
+    }
+    if (subject.value.length > 50) {
+        message.error("简短描述字数需要在50字之内");
         show.value = false;
         return;
     }
@@ -202,7 +208,7 @@ const emojiOptions = computed(() => {
 })
 
 const content = computed(() => {
-    let commit: string = `${type.value}${scope.value ? '(' + scope.value + ')' : ''}: ${emoji.value} ${subject.value}`;
+    let commit: string = `${type.value}${scope.value ? '(' + scope.value + ')' : ''}: ${ISEmoji.value ? emoji.value : ''} ${subject.value}`;
     commit += body.value && `\r\n\r\n${body.value}\r\n\r\n`
     return commit;
 });
