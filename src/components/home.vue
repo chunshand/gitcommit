@@ -4,7 +4,8 @@
             <NGridItem span="24 m:24 l:24">
                 <NSpace vertical>
                     <NSpace justify="end" align="center" size="large">
-                        <NCheckbox v-model:checked="ISEmoji" title="是否开启Emoji" :on-update:checked="handleISEmojiChange">Emoji
+                        <NCheckbox v-model:checked="ISEmoji" title="是否开启Emoji" :on-update:checked="handleISEmojiChange">
+                            Emoji
                         </NCheckbox>
                         <NButton size="small" @click="help = true">
                             帮助
@@ -102,7 +103,7 @@
     </NDrawer>
 </template>
 <script setup lang="ts">
-import { useMessage } from "naive-ui";
+import { useMessage, useDialog } from 'naive-ui'
 import { nameToEmoji } from 'gemoji'
 import useUtools from "../composables/useUtools";
 import { rawEmojis, typeData } from "../data";
@@ -119,6 +120,7 @@ interface commitInterface {
 }
 const historyLog = ref<commitInterface[]>([]);
 const message = useMessage();
+const dialog = useDialog();
 useUtools((data) => {
     let payload: string = data.payload as string;
     let cmd: string = payload.replace('gitc', '');
@@ -154,7 +156,7 @@ whenever(CtrlP, () => {
 whenever(shiftCtrlR, () => {
     handleClear()
 })
-const handleISEmojiChange = (value:any) => {
+const handleISEmojiChange = (value: any) => {
     window?.utools?.dbStorage.setItem(_ISEmojiKey, value)
     ISEmoji.value = value;
 }
@@ -164,8 +166,8 @@ const handleCopy = async () => {
         show.value = false;
         return;
     }
-    if (subject.value.length > 50) {
-        message.error("简短描述字数需要在50字之内");
+    if (contentBefor.value.length > 50) {
+        message.error("单行行头超过了50字符。");
         show.value = false;
         return;
     }
@@ -220,7 +222,10 @@ const content = computed(() => {
     commit += body.value && `\r\n\r\n${body.value}\r\n\r\n`
     return commit;
 });
-
+const contentBefor = computed(() => {
+    let commit: string = `${type.value}${scope.value ? '(' + scope.value + ')' : ''}: ${ISEmoji.value ? emoji.value : ''} ${subject.value}`;
+    return commit;
+});
 const copyDisabled = computed((): boolean => {
     return type.value && subject.value ? false : true;
 });
@@ -228,10 +233,18 @@ const { copy, copied } = useClipboard({
     source: content,
 });
 const handleClear = () => {
-    subject.value = "";
-    scope.value = "";
-    body.value = "";
-    type.value = typeOptions.value[0].value;
+    dialog.warning({
+        title: "警告",
+        content: "你确定要重置当前的内容?",
+        positiveText: "确定",
+        negativeText: "取消",
+        onPositiveClick: () => {
+            subject.value = "";
+            scope.value = "";
+            body.value = "";
+            type.value = typeOptions.value[0].value;
+        }
+    })
 };
 
 const handleCopyHistoryLog = (item: commitInterface) => {
@@ -257,12 +270,21 @@ const handleEditHistoryLog = (item: commitInterface) => {
 }
 
 const handleClearHigLog = () => {
-    historyLog.value = [];
-    window?.utools?.dbStorage.setItem(_historyLogKEY, JSON.stringify([]));
+    dialog.warning({
+        title: "警告",
+        content: "你确定要清空历史记录吗?",
+        positiveText: "确定",
+        negativeText: "取消",
+        onPositiveClick: () => {
+            historyLog.value = [];
+            window?.utools?.dbStorage.setItem(_historyLogKEY, JSON.stringify([]));
+        }
+    })
 }
 
 
 </script>
+
 <style scoped>
 .card-class {
     width: 100%;
