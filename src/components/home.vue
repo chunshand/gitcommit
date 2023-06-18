@@ -34,9 +34,14 @@
                         </NGridItem>
 
                         <NGridItem span="6 800:6">
-                            <NInput v-model:value="subject" :maxlength="50" status="warning" size="large"
-                                placeholder="简短描述(必填),最多50字">
-                            </NInput>
+                            <NPopover :show="subject.length ? true : false" :overlap="true" placement="right-end" :show-arrow="false" style="padding: 5px 0; margin: -5px 3px 0 0;top: -3px;right: 2px;box-shadow: none;background-color: transparent;color:#7d7b78" >
+                                <template #trigger>
+                                    <NInput v-model:value="subject" :maxlength="50-commitStr.length+subject.length" status="warning" size="large"
+                                    :placeholder="`简短描述(必填),最多50字,目前还剩${50-commitStr.length}字`">
+                                    </NInput>
+                                </template>
+                                <div>剩{{50-commitStr.length}}字</div>
+                            </NPopover>
                         </NGridItem>
 
                         <NGridItem span="10">
@@ -215,8 +220,12 @@ const emojiOptions = computed(() => {
     })
 })
 
+const commitStr = computed(() =>
+  `${type.value}${scope.value ? '(' + scope.value + ')' : ''}: ${ISEmoji.value ? emoji.value : ''} ${subject.value}`
+)
+
 const content = computed(() => {
-    let commit: string = `${type.value}${scope.value ? '(' + scope.value + ')' : ''}: ${ISEmoji.value ? emoji.value : ''} ${subject.value}`;
+    let commit: string = commitStr.value
     commit += body.value && `\r\n\r\n${body.value}\r\n\r\n`
     return commit;
 });
