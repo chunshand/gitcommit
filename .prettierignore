@@ -1,0 +1,14 @@
+*.log
+*.yaml
+*.d.ts
+
+node_modules
+dist
+package
+public
+# Editor directories and files
+.vscode
+.idea
+.husky
+
+index.html

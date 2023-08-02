@@ -13,7 +13,10 @@ export const rawEmojis = [
     { "name": "lock", "description": "修复安全问题" },
     { "name": "apple", "description": "修复在苹果系统上的问题" },
     { "name": "penguin", "description": "修复在 Linux 系统上的问题" },
-    { "name": "checkered_flag", "description": "修复在 Windows 系统上的问题" },
+    {
+        "name": "checkered_flag",
+        "description": "修复在 Windows 系统上的问题",
+    },
     { "name": "robot", "description": "修复在安卓系统上的问题" },
     { "name": "green_apple", "description": "修复在 iOS 系统上的问题" },
     { "name": "bookmark", "description": "发布 / 版本标签" },
@@ -24,7 +27,10 @@ export const rawEmojis = [
     { "name": "arrow_up", "description": "升级依赖" },
     { "name": "pushpin", "description": "固定依赖在特定的版本" },
     { "name": "construction_worker", "description": "添加持续集成构建系统" },
-    { "name": "chart_with_upwards_trend", "description": "添加分析或者跟踪代码" },
+    {
+        "name": "chart_with_upwards_trend",
+        "description": "添加分析或者跟踪代码",
+    },
     { "name": "recycle", "description": "代码重构" },
     { "name": "whale", "description": "Docker 容器相关" },
     { "name": "heavy_plus_sign", "description": "添加依赖" },
@@ -62,5 +68,8 @@ export const rawEmojis = [
     { "name": "wrench", "description": "不影响代码的其余变动" },
     { "name": "mag", "description": "改进搜索引擎优化" },
     { "name": "wheel_of_dharma", "description": "Kubernetes 相关的工作" },
-    { "name": "label", "description": "添加或者更新类型（Flow, TypeScript）" },
+    {
+        "name": "label",
+        "description": "添加或者更新类型（Flow, TypeScript）",
+    },
 ]
