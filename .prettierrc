@@ -1,0 +1,47 @@
+{
+    "printWidth": 110,
+    "singleQuote": false,
+    "trailingComma": "none",
+    "tabWidth": 4,
+    "semi": false,
+    "quoteProps": "preserve",
+    "bracketSpacing": true,
+    "arrowParens": "always",
+    "endOfLine": "auto",
+    "overrides": [
+        {
+            "files": ["src/**/*.ts", "src/App.vue"],
+            "options": {
+                "semi": true,
+                "printWidth": 80,
+                "tabWidth": 2
+            }
+        },
+        {
+            "files": "*.(json|md)",
+            "options": {
+                "tabWidth": 2,
+                "printWidth": 80
+            }
+        },
+        {
+            "files": "src/data/*.ts",
+            "options": {
+                "tabWidth": 4,
+                "semi": false,
+                "trailingComma": "es5"
+            }
+        },
+        {
+            "files": "src/components/home.vue",
+            "options": { "semi": true }
+        },
+        {
+            "files": ["src/main.ts", "vite.config.ts"],
+            "options": {
+                "semi": false,
+                "singleQuote": true
+            }
+        }
+    ]
+}

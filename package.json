@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@vueuse/core": "^7.7.1",
@@ -16,8 +17,14 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.2.0",
+    "husk": "^0.5.3",
+    "lint-staged": "^13.2.3",
+    "prettier": "^3.0.0",
     "unplugin-vue-components": "^0.17.21",
     "utools-api-types": "^2.6.3",
     "vite": "^2.8.0"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
   }
 }

@@ -55,4 +55,4 @@ export const typeData = [
         label: "回退之前版本(revert)",
         emoji: "⏪",
     },
-];
+]
