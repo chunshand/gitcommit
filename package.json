@@ -12,17 +12,18 @@
     "@vueuse/core": "^7.7.1",
     "gemoji": "^7.1.0",
     "naive-ui": "^2.26.4",
-    "unplugin-auto-import": "^0.7.1",
     "vue": "^3.2.25"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^2.2.0",
-    "husk": "^0.5.3",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "husky": "^8.0.3",
     "lint-staged": "^13.2.3",
     "prettier": "^3.0.0",
-    "unplugin-vue-components": "^0.17.21",
-    "utools-api-types": "^2.6.3",
-    "vite": "^2.8.0"
+    "unplugin-auto-import": "^0.16.4",
+    "unplugin-vue-components": "^0.25.0",
+    "utools-api-types": "^2.6.4",
+    "vite": "^4.3.5",
+    "vite-plugin-utools-helper": "^0.0.4"
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
