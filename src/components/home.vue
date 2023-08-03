@@ -47,6 +47,10 @@
                                 :options="emojiOptions"
                                 filterable
                                 :disabled="!ISEmoji"
+                                ref="searchEmoji"
+                                :filter="handleSearch"
+                                :show-on-focus="true"
+                                @update:value="handleUpdateValue"
                             >
                             </NSelect>
                         </NGridItem>
@@ -130,10 +134,11 @@
     </NDrawer>
 </template>
 <script setup lang="ts">
-import { useMessage, useDialog } from "naive-ui";
+import { useMessage, useDialog, SelectInst, SelectOption } from "naive-ui";
 import { nameToEmoji } from "gemoji";
 import useUtools from "../composables/useUtools";
 import { rawEmojis, typeData } from "../data";
+
 let clickTimer: any = null;
 const _historyLogKEY = "historyLog";
 const _ISEmojiKey = "ISEmoji";
@@ -232,15 +237,35 @@ const body = ref("");
 
 const emoji = ref(defatltEmoji.value);
 
-const emojiOptions = computed(() => {
-    return rawEmojis.map((item) => {
+const emojiOptions = computed(() =>
+    rawEmojis.map((item) => {
+        const pinyin = item.pinyin.toLowerCase();
+        // 用户输入emoji关键字，如果存在于searchTxtArr的元素中则返回对应emoji，详见handleSearch
+        // searchTxtArr = {
+        //   pinyin:"jiegougaijin/geshihuadaima",
+        //   py:"jggj/gshdm",
+        //   des:"结构改进 / 格式化代码",
+        // }
+        const searchTxtArr = {
+            pinyin: pinyin.replaceAll(" ", ""),
+            py: pinyin.split(" ").reduce((firstLetter, word) => {
+                const _fl = word.charAt(0);
+                // 缩写首字母不应该包含数组内的字符
+                if ([",", "(", ")", "/"].includes(_fl)) {
+                    return firstLetter;
+                }
+                return firstLetter + _fl;
+            }, ""),
+            des: item.description
+        };
         return {
             ...item,
+            searchTxtArr,
             value: nameToEmoji[item.name],
             label: `${nameToEmoji[item.name]} ${item.description}`
         };
-    });
-});
+    })
+);
 
 const commitStr = computed(
     () =>
@@ -314,6 +339,31 @@ const handleClearHigLog = () => {
             window?.utools?.dbStorage.setItem(_historyLogKEY, JSON.stringify([]));
         }
     });
+};
+
+let searchEmoji = ref<SelectInst>();
+onMounted(() => {
+    // 下一个naive-ui版本的api，用pnpm打个补丁先用
+    searchEmoji.value?.focusInput();
+});
+type EmojiOption = (typeof emojiOptions.value)[0];
+const handleSearch = (pattern: string, option: SelectOption) => {
+    pattern = pattern.trim();
+    if (pattern.length === 0) return true;
+
+    const searchTxtArr = (option as EmojiOption).searchTxtArr;
+    pattern = pattern.toLowerCase();
+    return (
+        // 默认先按照首字母匹配
+        searchTxtArr.py.includes(pattern) ||
+        searchTxtArr.pinyin.includes(pattern) ||
+        searchTxtArr.des.includes(pattern)
+    );
+};
+const handleUpdateValue = (value: string) => {
+    utools.copyText(value);
+    utools.hideMainWindow();
+    utools.simulateKeyboardTap("v", "ctrl");
 };
 </script>
 

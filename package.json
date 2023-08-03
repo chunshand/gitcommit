@@ -11,7 +11,7 @@
   "dependencies": {
     "@vueuse/core": "^7.7.1",
     "gemoji": "^7.1.0",
-    "naive-ui": "^2.26.4",
+    "naive-ui": "^2.34.4",
     "vue": "^3.2.25"
   },
   "devDependencies": {
@@ -22,10 +22,14 @@
     "unplugin-auto-import": "^0.16.4",
     "unplugin-vue-components": "^0.25.0",
     "utools-api-types": "^2.6.4",
-    "vite": "^4.3.5",
-    "vite-plugin-utools-helper": "^0.0.4"
+    "vite": "^4.3.5"
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "naive-ui@2.34.4": "patches/naive-ui@2.34.4.patch"
+    }
   }
 }
