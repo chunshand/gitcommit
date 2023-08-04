@@ -15,7 +15,11 @@
                         <NButton size="small" @click="show = true"> 预览 </NButton>
                         <NButton type="warning" size="small" @click="handleClear">重置内容</NButton>
                         &nbsp;
-                        <NButton type="success" size="small" :disabled="copyDisabled" @click="handleCopy()"
+                        <NButton
+                            type="success"
+                            size="small"
+                            :disabled="copyDisabled"
+                            @click="validCommit(handleCopy)"
                             ><span v-if="!copied">复制结果</span>
                             <span v-else>已复制</span>
                         </NButton>
@@ -28,6 +32,7 @@
                                 placeholder="类型"
                                 size="large"
                                 :options="typeOptions"
+                                :disabled="settingsStore.settings.value.isEmojiMode"
                             >
                             </NSelect>
                         </NGridItem>
@@ -37,6 +42,7 @@
                                 size="large"
                                 placeholder="范围(非必填)"
                                 autofocus
+                                :disabled="settingsStore.settings.value.isEmojiMode"
                             ></NInput>
                         </NGridItem>
                         <NGridItem span="4  800:4">
@@ -48,9 +54,9 @@
                                 filterable
                                 :disabled="!ISEmoji"
                                 ref="searchEmoji"
-                                :filter="handleSearch"
+                                :filter="useFilterEmoji"
                                 :show-on-focus="true"
-                                @update:value="handleUpdateValue"
+                                @update:value="settingsStore.settings.value.isEmojiMode && handleCopy()"
                             >
                             </NSelect>
                         </NGridItem>
@@ -62,6 +68,7 @@
                                 status="warning"
                                 size="large"
                                 :placeholder="`简短描述(必填),最多50字`"
+                                :disabled="settingsStore.settings.value.isEmojiMode"
                             >
                                 <template #suffix>
                                     <n-text :type="50 - commitStr.length < 10 ? 'error' : 'warning'">
@@ -78,6 +85,7 @@
                                 :rows="10"
                                 size="large"
                                 placeholder="具体内容(非必填)"
+                                :disabled="settingsStore.settings.value.isEmojiMode"
                             >
                             </NInput>
                         </NGridItem>
@@ -134,14 +142,16 @@
     </NDrawer>
 </template>
 <script setup lang="ts">
-import { useMessage, useDialog, SelectInst, SelectOption } from "naive-ui";
 import { nameToEmoji } from "gemoji";
-import useUtools from "../composables/useUtools";
-import { rawEmojis, typeData } from "../data";
+import useUtools from "@/composables/useUtools";
+import { rawEmojis, typeData } from "@/data";
+import { useSearchTxtArr, useFilterEmoji, useFocusInput } from "@/composables/useSearch";
+import { settingsStore } from "@/store";
 
 let clickTimer: any = null;
 const _historyLogKEY = "historyLog";
 const _ISEmojiKey = "ISEmoji";
+// const _ISSearchEmojiMode="ISSearchEmojiMode"
 interface commitInterface {
     type: string;
     scope?: string;
@@ -153,9 +163,16 @@ interface commitInterface {
 const historyLog = ref<commitInterface[]>([]);
 const message = useMessage();
 const dialog = useDialog();
+
 useUtools((data) => {
+    settingsStore.setMode(data.code);
+
     let payload: string = data.payload as string;
     let cmd: string = payload.replace("gitc", "");
+
+    if (settingsStore.settings.value.isEmojiMode) {
+        cmd = "feat";
+    }
     if (cmd) {
         type.value = cmd;
     }
@@ -177,7 +194,7 @@ const CtrlP = keys["Ctrl+P"];
 const ISEmoji = ref(true);
 // 复制
 whenever(shiftCtrlC, () => {
-    handleCopy();
+    validCommit(handleCopy);
 });
 // 预览
 whenever(CtrlP, () => {
@@ -191,7 +208,8 @@ const handleISEmojiChange = (value: any) => {
     window?.utools?.dbStorage.setItem(_ISEmojiKey, value);
     ISEmoji.value = value;
 };
-const handleCopy = async () => {
+
+const validCommit = (fn: () => Promise<void>) => {
     if (!subject.value) {
         message.error("简短描述 必填");
         show.value = false;
@@ -202,6 +220,10 @@ const handleCopy = async () => {
         show.value = false;
         return;
     }
+    fn();
+};
+
+const handleCopy = async () => {
     await copy(content.value);
     if (historyLog.value.length >= 5) {
         historyLog.value.splice(0, 1);
@@ -217,6 +239,7 @@ const handleCopy = async () => {
     window?.utools?.dbStorage.setItem(_historyLogKEY, JSON.stringify(historyLog.value));
     show.value = false;
     window?.utools?.hideMainWindow();
+    window?.utools?.simulateKeyboardTap("v", "ctrl");
 };
 // https://github.com/conventional-changelog/commitlint/blob/master/%40commitlint/config-conventional/index.js
 const typeOptions = ref(typeData);
@@ -237,42 +260,21 @@ const body = ref("");
 
 const emoji = ref(defatltEmoji.value);
 
-const emojiOptions = computed(() =>
-    rawEmojis.map((item) => {
-        const pinyin = item.pinyin.toLowerCase();
-        // 用户输入emoji关键字，如果存在于searchTxtArr的元素中则返回对应emoji，详见handleSearch
-        // searchTxtArr = {
-        //   pinyin:"jiegougaijin/geshihuadaima",
-        //   py:"jggj/gshdm",
-        //   des:"结构改进 / 格式化代码",
-        // }
-        const searchTxtArr = {
-            pinyin: pinyin.replaceAll(" ", ""),
-            py: pinyin.split(" ").reduce((firstLetter, word) => {
-                const _fl = word.charAt(0);
-                // 缩写首字母不应该包含数组内的字符
-                if ([",", "(", ")", "/"].includes(_fl)) {
-                    return firstLetter;
-                }
-                return firstLetter + _fl;
-            }, ""),
-            des: item.description
-        };
-        return {
-            ...item,
-            searchTxtArr,
-            value: nameToEmoji[item.name],
-            label: `${nameToEmoji[item.name]} ${item.description}`
-        };
-    })
-);
+const emojiOptions = rawEmojis.map((item) => ({
+    ...item,
+    searchTxtArr: useSearchTxtArr(item),
+    value: nameToEmoji[item.name],
+    label: `${nameToEmoji[item.name]} ${item.description}`
+}));
 
-const commitStr = computed(
-    () =>
-        `${type.value}${scope.value ? "(" + scope.value + ")" : ""}: ${ISEmoji.value ? emoji.value : ""} ${
-            subject.value
-        }`
-);
+const commitStr = computed(() => {
+    const isEmojiMode = settingsStore.settings.value.isEmojiMode;
+    const _type = isEmojiMode ? "" : type.value;
+    const _scope = scope.value ? `( ${scope.value} )` : "";
+    const symbol = isEmojiMode ? "" : ": ";
+    const _emoji = ISEmoji.value ? emoji.value : "";
+    return `${_type}${_scope}${symbol}${_emoji} ${subject.value}`;
+});
 
 const content = computed(() => {
     let commit: string = commitStr.value;
@@ -341,30 +343,7 @@ const handleClearHigLog = () => {
     });
 };
 
-let searchEmoji = ref<SelectInst>();
-onMounted(() => {
-    // 下一个naive-ui版本的api，用pnpm打个补丁先用
-    searchEmoji.value?.focusInput();
-});
-type EmojiOption = (typeof emojiOptions.value)[0];
-const handleSearch = (pattern: string, option: SelectOption) => {
-    pattern = pattern.trim();
-    if (pattern.length === 0) return true;
-
-    const searchTxtArr = (option as EmojiOption).searchTxtArr;
-    pattern = pattern.toLowerCase();
-    return (
-        // 默认先按照首字母匹配
-        searchTxtArr.py.includes(pattern) ||
-        searchTxtArr.pinyin.includes(pattern) ||
-        searchTxtArr.des.includes(pattern)
-    );
-};
-const handleUpdateValue = (value: string) => {
-    utools.copyText(value);
-    utools.hideMainWindow();
-    utools.simulateKeyboardTap("v", "ctrl");
-};
+const searchEmoji = useFocusInput();
 </script>
 
 <style scoped>

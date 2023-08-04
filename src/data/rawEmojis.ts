@@ -1,4 +1,9 @@
-export const rawEmojis = [
+export type RawEmoji = {
+    name: string
+    description: string
+    pinyin: string
+}
+export const rawEmojis: RawEmoji[] = [
     {
         "name": "art",
         "description": "结构改进 / 格式化代码",
