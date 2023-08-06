@@ -44,11 +44,10 @@ export const useFilterEmoji = (pattern: string, option: SelectOption) => {
     }
   ).searchTxtArr;
   pattern = pattern.toLowerCase();
-  console.log(pattern);
-
   return (
     // 默认先按照首字母匹配
     searchTxtArr.py.includes(pattern) ||
+    (option.value as string).replace(" ", "").includes(pattern) ||
     searchTxtArr.pinyin.includes(pattern) ||
     searchTxtArr.des.includes(pattern)
   );

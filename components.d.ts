@@ -9,6 +9,7 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    EmojiLabel: typeof import('./src/components/EmojiLabel.vue')['default']
     Home: typeof import('./src/components/home.vue')['default']
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']
@@ -24,5 +25,6 @@ declare module '@vue/runtime-core' {
     NSelect: typeof import('naive-ui')['NSelect']
     NSpace: typeof import('naive-ui')['NSpace']
     NText: typeof import('naive-ui')['NText']
+    SettingsView: typeof import('./src/components/SettingsView.vue')['default']
   }
 }

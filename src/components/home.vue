@@ -4,13 +4,7 @@
             <NGridItem span="24 m:24 l:24">
                 <NSpace vertical>
                     <NSpace justify="end" align="center" size="large">
-                        <NCheckbox
-                            v-model:checked="ISEmoji"
-                            title="是否开启Emoji"
-                            :on-update:checked="handleISEmojiChange"
-                        >
-                            Emoji
-                        </NCheckbox>
+                        <NButton size="small" @click="settingRef?.switchSetting"> 设置 </NButton>
                         <NButton size="small" @click="help = true"> 帮助 </NButton>
                         <NButton size="small" @click="show = true"> 预览 </NButton>
                         <NButton type="warning" size="small" @click="handleClear">重置内容</NButton>
@@ -52,10 +46,10 @@
                                 size="large"
                                 :options="emojiOptions"
                                 filterable
-                                :disabled="!ISEmoji"
+                                :disabled="!settingsStore.settings.value.isEmoji"
                                 ref="searchEmoji"
                                 :filter="useFilterEmoji"
-                                :show-on-focus="true"
+                                :show="settingsStore.settings.value.isEmojiMode ? true : undefined"
                                 @update:value="settingsStore.settings.value.isEmojiMode && handleCopy()"
                             >
                             </NSelect>
@@ -140,18 +134,23 @@
             </NSpace>
         </NDrawerContent>
     </NDrawer>
+    <SettingsView ref="settingRef" />
 </template>
 <script setup lang="ts">
 import { nameToEmoji } from "gemoji";
-import useUtools from "@/composables/useUtools";
+import useUtools, { paste } from "@/composables/useUtools";
 import { rawEmojis, typeData } from "@/data";
 import { useSearchTxtArr, useFilterEmoji, useFocusInput } from "@/composables/useSearch";
 import { settingsStore } from "@/store";
+import EmojiLabel from "./EmojiLabel.vue";
+
+const SettingsView = defineAsyncComponent(() => import("@/components/SettingsView.vue"));
+
+const settingRef = ref<InstanceType<typeof SettingsView>>();
 
 let clickTimer: any = null;
 const _historyLogKEY = "historyLog";
-const _ISEmojiKey = "ISEmoji";
-// const _ISSearchEmojiMode="ISSearchEmojiMode"
+
 interface commitInterface {
     type: string;
     scope?: string;
@@ -179,8 +178,6 @@ useUtools((data) => {
     try {
         let list = window?.utools?.dbStorage.getItem(_historyLogKEY);
         historyLog.value = list ? JSON.parse(list) : [];
-        let ISEmojiValue = window?.utools?.dbStorage.getItem(_ISEmojiKey) ? true : false;
-        ISEmoji.value = ISEmojiValue;
     } catch (error) {
         historyLog.value = [];
     }
@@ -191,7 +188,6 @@ const shiftCtrlR = keys["Shift+Ctrl+R"];
 const show = ref(false);
 const help = ref(false);
 const CtrlP = keys["Ctrl+P"];
-const ISEmoji = ref(true);
 // 复制
 whenever(shiftCtrlC, () => {
     validCommit(handleCopy);
@@ -204,10 +200,6 @@ whenever(CtrlP, () => {
 whenever(shiftCtrlR, () => {
     handleClear();
 });
-const handleISEmojiChange = (value: any) => {
-    window?.utools?.dbStorage.setItem(_ISEmojiKey, value);
-    ISEmoji.value = value;
-};
 
 const validCommit = (fn: () => Promise<void>) => {
     if (!subject.value) {
@@ -239,12 +231,32 @@ const handleCopy = async () => {
     window?.utools?.dbStorage.setItem(_historyLogKEY, JSON.stringify(historyLog.value));
     show.value = false;
     window?.utools?.hideMainWindow();
-    window?.utools?.simulateKeyboardTap("v", "ctrl");
+    if (settingsStore.settings.value.isEmojiMode) {
+        paste();
+    }
 };
 // https://github.com/conventional-changelog/commitlint/blob/master/%40commitlint/config-conventional/index.js
 const typeOptions = ref(typeData);
+
+const emojiOptions = rawEmojis.map((item) => {
+    const optionValue = `${nameToEmoji[item.name]} :${item.name}:`;
+    return {
+        ...item,
+        searchTxtArr: useSearchTxtArr(item),
+        value: optionValue,
+        label: () =>
+            h(EmojiLabel, {
+                label: {
+                    emoji: nameToEmoji[item.name],
+                    emojiCode: `:${item.name}:`,
+                    description: item.description
+                }
+            })
+    };
+});
+
 // 默认emoji
-const defatltEmoji = ref("✨");
+const defatltEmoji = ref(emojiOptions[5].value);
 // 类型
 const type = ref("feat");
 watch(type, (val) => {
@@ -260,19 +272,13 @@ const body = ref("");
 
 const emoji = ref(defatltEmoji.value);
 
-const emojiOptions = rawEmojis.map((item) => ({
-    ...item,
-    searchTxtArr: useSearchTxtArr(item),
-    value: nameToEmoji[item.name],
-    label: `${nameToEmoji[item.name]} ${item.description}`
-}));
-
 const commitStr = computed(() => {
-    const isEmojiMode = settingsStore.settings.value.isEmojiMode;
+    const { isEmojiMode } = settingsStore.settings.value;
+
     const _type = isEmojiMode ? "" : type.value;
     const _scope = scope.value ? `( ${scope.value} )` : "";
     const symbol = isEmojiMode ? "" : ": ";
-    const _emoji = ISEmoji.value ? emoji.value : "";
+    const _emoji = settingsStore.settings.value.isEmoji ? parseEmojiValue() : "";
     return `${_type}${_scope}${symbol}${_emoji} ${subject.value}`;
 });
 
@@ -283,7 +289,7 @@ const content = computed(() => {
 });
 const contentBefor = computed(() => {
     let commit: string = `${type.value}${scope.value ? "(" + scope.value + ")" : ""}: ${
-        ISEmoji.value ? emoji.value : ""
+        settingsStore.settings.value.isEmoji ? parseEmojiValue() : ""
     } ${subject.value}`;
     return commit;
 });
@@ -344,6 +350,11 @@ const handleClearHigLog = () => {
 };
 
 const searchEmoji = useFocusInput();
+
+const parseEmojiValue = () => {
+    const tempEmojis = emoji.value.split(" ");
+    return settingsStore.settings.value.isCodeEmoji ? tempEmojis[1] : tempEmojis[0];
+};
 </script>
 
 <style scoped>
