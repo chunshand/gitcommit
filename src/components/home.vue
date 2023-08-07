@@ -168,11 +168,7 @@ useUtools((data) => {
     settingsStore.setMode(data.code);
 
     let payload: string = data.payload as string;
-    let cmd: string = payload.replace("gitc", "");
-
-    if (settingsStore.settings.value.isEmojiMode) {
-        cmd = "feat";
-    }
+    let cmd: string = payload.replace(/^git(c|emoji)/, "");
     if (cmd) {
         type.value = cmd;
     }
@@ -239,29 +235,27 @@ const handleCopy = async () => {
 // https://github.com/conventional-changelog/commitlint/blob/master/%40commitlint/config-conventional/index.js
 const typeOptions = ref(typeData);
 
-const emojiOptions = rawEmojis.map((item) => {
-    const optionValue = `${nameToEmoji[item.name]} :${item.name}:`;
-    return {
-        ...item,
-        searchTxtArr: useSearchTxtArr(item),
-        value: optionValue,
-        label: () =>
-            h(EmojiLabel, {
-                label: {
-                    emoji: nameToEmoji[item.name],
-                    emojiCode: `:${item.name}:`,
-                    description: item.description
-                }
-            })
-    };
-});
+const emojiOptions = rawEmojis.map((item) => ({
+    ...item,
+    searchTxtArr: useSearchTxtArr(item),
+    value: `${nameToEmoji[item.name]} :${item.name}:`,
+    label: () =>
+        h(EmojiLabel, {
+            label: {
+                emoji: nameToEmoji[item.name],
+                emojiCode: `:${item.name}:`,
+                description: item.description
+            }
+        })
+}));
 
 // 默认emoji
 const defatltEmoji = ref(emojiOptions[5].value);
 // 类型
 const type = ref("feat");
 watch(type, (val) => {
-    emoji.value = typeOptions.value.find((item) => item.value === val)?.emoji ?? defatltEmoji.value;
+    const _emoji = typeOptions.value.find((item) => item.value === val)!.emoji;
+    emoji.value = emojiOptions.find((item) => item.value.startsWith(_emoji))?.value ?? defatltEmoji.value;
 });
 // 范围
 const scope = ref("");
