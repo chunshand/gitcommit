@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite'
@@ -8,7 +9,13 @@ export default defineConfig({
     plugins: [
         vue(),
         AutoImport({
-            imports: ['vue', '@vueuse/core'],
+            imports: [
+                'vue',
+                '@vueuse/core',
+                {
+                    'naive-ui': ['useDialog', 'useMessage']
+                }
+            ],
             dts: true
         }),
         Components({
@@ -16,7 +23,11 @@ export default defineConfig({
             dts: true
         })
     ],
-
+    resolve: {
+        alias: {
+            '@': fileURLToPath(new URL('./src', import.meta.url))
+        }
+    },
     base: './',
     server: {
         port: 8979

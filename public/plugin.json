@@ -19,6 +19,11 @@
                 "gitcchore",
                 "gitcrevert"
             ]
+        },
+        {
+            "code": "git-emoji",
+            "explain": "使用搜索快速定位到对应emoji",
+            "cmds": ["gitemoji"]
         }
     ],
     "development": {

@@ -10,3 +10,11 @@ export default function useUtools(
   });
   return tools;
 }
+
+export const paste = () => {
+  if (utools.isMacOs()) {
+    utools.simulateKeyboardTap("v", "command");
+    return;
+  }
+  utools.simulateKeyboardTap("v", "ctrl");
+};

@@ -4,18 +4,16 @@
             <NGridItem span="24 m:24 l:24">
                 <NSpace vertical>
                     <NSpace justify="end" align="center" size="large">
-                        <NCheckbox
-                            v-model:checked="ISEmoji"
-                            title="是否开启Emoji"
-                            :on-update:checked="handleISEmojiChange"
-                        >
-                            Emoji
-                        </NCheckbox>
+                        <NButton size="small" @click="settingRef?.switchSetting"> 设置 </NButton>
                         <NButton size="small" @click="help = true"> 帮助 </NButton>
                         <NButton size="small" @click="show = true"> 预览 </NButton>
                         <NButton type="warning" size="small" @click="handleClear">重置内容</NButton>
                         &nbsp;
-                        <NButton type="success" size="small" :disabled="copyDisabled" @click="handleCopy()"
+                        <NButton
+                            type="success"
+                            size="small"
+                            :disabled="copyDisabled"
+                            @click="validCommit(handleCopy)"
                             ><span v-if="!copied">复制结果</span>
                             <span v-else>已复制</span>
                         </NButton>
@@ -28,6 +26,7 @@
                                 placeholder="类型"
                                 size="large"
                                 :options="typeOptions"
+                                :disabled="settingsStore.settings.value.isEmojiMode"
                             >
                             </NSelect>
                         </NGridItem>
@@ -36,7 +35,8 @@
                                 v-model:value="scope"
                                 size="large"
                                 placeholder="范围(非必填)"
-                                autofocus
+                                :disabled="settingsStore.settings.value.isEmojiMode"
+                                ref="scopRef"
                             ></NInput>
                         </NGridItem>
                         <NGridItem span="4  800:4">
@@ -46,7 +46,11 @@
                                 size="large"
                                 :options="emojiOptions"
                                 filterable
-                                :disabled="!ISEmoji"
+                                :disabled="!settingsStore.settings.value.isEmoji"
+                                ref="searchEmoji"
+                                :filter="useFilterEmoji"
+                                :show="settingsStore.settings.value.isEmojiMode ? true : undefined"
+                                @update:value="settingsStore.settings.value.isEmojiMode && handleCopy()"
                             >
                             </NSelect>
                         </NGridItem>
@@ -58,6 +62,7 @@
                                 status="warning"
                                 size="large"
                                 :placeholder="`简短描述(必填),最多50字`"
+                                :disabled="settingsStore.settings.value.isEmojiMode"
                             >
                                 <template #suffix>
                                     <n-text :type="50 - commitStr.length < 10 ? 'error' : 'warning'">
@@ -74,6 +79,7 @@
                                 :rows="10"
                                 size="large"
                                 placeholder="具体内容(非必填)"
+                                :disabled="settingsStore.settings.value.isEmojiMode"
                             >
                             </NInput>
                         </NGridItem>
@@ -128,15 +134,31 @@
             </NSpace>
         </NDrawerContent>
     </NDrawer>
+    <SettingsView ref="settingRef" />
 </template>
 <script setup lang="ts">
-import { useMessage, useDialog } from "naive-ui";
-import { nameToEmoji } from "gemoji";
-import useUtools from "../composables/useUtools";
-import { rawEmojis, typeData } from "../data";
+import useUtools, { paste } from "@/composables/useUtools";
+import { rawEmojis, typeData } from "@/data";
+import { useSearchTxtArr, useFilterEmoji, useFocusInput } from "@/composables/useSearch";
+import { settingsStore } from "@/store";
+import EmojiLabel from "./EmojiLabel.vue";
+import { InputInst } from "naive-ui";
+
+// todo:添加新emoji时在重新生成rawEmojis
+// import { nameToEmoji } from "gemoji";
+// 组成包含emoji的rawEmojis，复制到文件里
+// console.log(rawEmojis.map((item) => ({
+//     ...item,
+//     emoji: nameToEmoji[item.name]
+// })))
+
+const SettingsView = defineAsyncComponent(() => import("@/components/SettingsView.vue"));
+
+const settingRef = ref<InstanceType<typeof SettingsView>>();
+
 let clickTimer: any = null;
 const _historyLogKEY = "historyLog";
-const _ISEmojiKey = "ISEmoji";
+
 interface commitInterface {
     type: string;
     scope?: string;
@@ -148,17 +170,19 @@ interface commitInterface {
 const historyLog = ref<commitInterface[]>([]);
 const message = useMessage();
 const dialog = useDialog();
+
 useUtools((data) => {
+    settingsStore.init();
+    settingsStore.setMode(data.code);
+
     let payload: string = data.payload as string;
-    let cmd: string = payload.replace("gitc", "");
+    let cmd: string = payload.replace(/^git(c|emoji)/, "");
     if (cmd) {
         type.value = cmd;
     }
     try {
         let list = window?.utools?.dbStorage.getItem(_historyLogKEY);
         historyLog.value = list ? JSON.parse(list) : [];
-        let ISEmojiValue = window?.utools?.dbStorage.getItem(_ISEmojiKey) ? true : false;
-        ISEmoji.value = ISEmojiValue;
     } catch (error) {
         historyLog.value = [];
     }
@@ -169,10 +193,9 @@ const shiftCtrlR = keys["Shift+Ctrl+R"];
 const show = ref(false);
 const help = ref(false);
 const CtrlP = keys["Ctrl+P"];
-const ISEmoji = ref(true);
 // 复制
 whenever(shiftCtrlC, () => {
-    handleCopy();
+    validCommit(handleCopy);
 });
 // 预览
 whenever(CtrlP, () => {
@@ -182,11 +205,8 @@ whenever(CtrlP, () => {
 whenever(shiftCtrlR, () => {
     handleClear();
 });
-const handleISEmojiChange = (value: any) => {
-    window?.utools?.dbStorage.setItem(_ISEmojiKey, value);
-    ISEmoji.value = value;
-};
-const handleCopy = async () => {
+
+const validCommit = (fn: () => Promise<void>) => {
     if (!subject.value) {
         message.error("简短描述 必填");
         show.value = false;
@@ -197,6 +217,10 @@ const handleCopy = async () => {
         show.value = false;
         return;
     }
+    fn();
+};
+
+const handleCopy = async () => {
     await copy(content.value);
     if (historyLog.value.length >= 5) {
         historyLog.value.splice(0, 1);
@@ -212,15 +236,34 @@ const handleCopy = async () => {
     window?.utools?.dbStorage.setItem(_historyLogKEY, JSON.stringify(historyLog.value));
     show.value = false;
     window?.utools?.hideMainWindow();
+    if (settingsStore.settings.value.autoPaste) {
+        paste();
+    }
 };
 // https://github.com/conventional-changelog/commitlint/blob/master/%40commitlint/config-conventional/index.js
 const typeOptions = ref(typeData);
+
+const emojiOptions = rawEmojis.map((item) => ({
+    ...item,
+    searchTxtArr: useSearchTxtArr(item),
+    value: `${item.emoji} :${item.name}:`,
+    label: () =>
+        h(EmojiLabel, {
+            label: {
+                emoji: item.emoji,
+                emojiCode: `:${item.name}:`,
+                description: item.description
+            }
+        })
+}));
+
 // 默认emoji
-const defatltEmoji = ref("✨");
+const defatltEmoji = ref(emojiOptions[5].value);
 // 类型
 const type = ref("feat");
 watch(type, (val) => {
-    emoji.value = typeOptions.value.find((item) => item.value === val)?.emoji ?? defatltEmoji.value;
+    const _emoji = typeOptions.value.find((item) => item.value === val)!.emoji;
+    emoji.value = emojiOptions.find((item) => item.value.startsWith(_emoji))?.value ?? defatltEmoji.value;
 });
 // 范围
 const scope = ref("");
@@ -232,22 +275,15 @@ const body = ref("");
 
 const emoji = ref(defatltEmoji.value);
 
-const emojiOptions = computed(() => {
-    return rawEmojis.map((item) => {
-        return {
-            ...item,
-            value: nameToEmoji[item.name],
-            label: `${nameToEmoji[item.name]} ${item.description}`
-        };
-    });
-});
+const commitStr = computed(() => {
+    const { isEmojiMode } = settingsStore.settings.value;
 
-const commitStr = computed(
-    () =>
-        `${type.value}${scope.value ? "(" + scope.value + ")" : ""}: ${ISEmoji.value ? emoji.value : ""} ${
-            subject.value
-        }`
-);
+    const _type = isEmojiMode ? "" : type.value;
+    const _scope = scope.value ? `( ${scope.value} )` : "";
+    const symbol = isEmojiMode ? "" : ": ";
+    const _emoji = settingsStore.settings.value.isEmoji ? parseEmojiValue() + " " : "";
+    return `${_type}${_scope}${symbol}${_emoji}${subject.value}`;
+});
 
 const content = computed(() => {
     let commit: string = commitStr.value;
@@ -256,7 +292,7 @@ const content = computed(() => {
 });
 const contentBefor = computed(() => {
     let commit: string = `${type.value}${scope.value ? "(" + scope.value + ")" : ""}: ${
-        ISEmoji.value ? emoji.value : ""
+        settingsStore.settings.value.isEmoji ? parseEmojiValue() : ""
     } ${subject.value}`;
     return commit;
 });
@@ -314,6 +350,14 @@ const handleClearHigLog = () => {
             window?.utools?.dbStorage.setItem(_historyLogKEY, JSON.stringify([]));
         }
     });
+};
+
+const scopRef = ref<InputInst>();
+const searchEmoji = useFocusInput(scopRef as Ref<InputInst>);
+
+const parseEmojiValue = () => {
+    const tempEmojis = emoji.value.split(" ");
+    return settingsStore.settings.value.isCodeEmoji ? tempEmojis[1] : tempEmojis[0];
 };
 </script>
 
