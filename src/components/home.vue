@@ -137,13 +137,20 @@
     <SettingsView ref="settingRef" />
 </template>
 <script setup lang="ts">
-import { nameToEmoji } from "gemoji";
 import useUtools, { paste } from "@/composables/useUtools";
 import { rawEmojis, typeData } from "@/data";
 import { useSearchTxtArr, useFilterEmoji, useFocusInput } from "@/composables/useSearch";
 import { settingsStore } from "@/store";
 import EmojiLabel from "./EmojiLabel.vue";
 import { InputInst } from "naive-ui";
+
+// todo:添加新emoji时在重新生成rawEmojis
+// import { nameToEmoji } from "gemoji";
+// 组成包含emoji的rawEmojis，复制到文件里
+// console.log(rawEmojis.map((item) => ({
+//     ...item,
+//     emoji: nameToEmoji[item.name]
+// })))
 
 const SettingsView = defineAsyncComponent(() => import("@/components/SettingsView.vue"));
 
@@ -239,11 +246,11 @@ const typeOptions = ref(typeData);
 const emojiOptions = rawEmojis.map((item) => ({
     ...item,
     searchTxtArr: useSearchTxtArr(item),
-    value: `${nameToEmoji[item.name]} :${item.name}:`,
+    value: `${item.emoji} :${item.name}:`,
     label: () =>
         h(EmojiLabel, {
             label: {
-                emoji: nameToEmoji[item.name],
+                emoji: item.emoji,
                 emojiCode: `:${item.name}:`,
                 description: item.description
             }
