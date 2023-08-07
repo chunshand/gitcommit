@@ -164,6 +164,7 @@ const message = useMessage();
 const dialog = useDialog();
 
 useUtools((data) => {
+    settingsStore.init();
     settingsStore.setMode(data.code);
 
     let payload: string = data.payload as string;
@@ -231,7 +232,7 @@ const handleCopy = async () => {
     window?.utools?.dbStorage.setItem(_historyLogKEY, JSON.stringify(historyLog.value));
     show.value = false;
     window?.utools?.hideMainWindow();
-    if (settingsStore.settings.value.isEmojiMode) {
+    if (settingsStore.settings.value.autoPaste) {
         paste();
     }
 };
@@ -278,8 +279,8 @@ const commitStr = computed(() => {
     const _type = isEmojiMode ? "" : type.value;
     const _scope = scope.value ? `( ${scope.value} )` : "";
     const symbol = isEmojiMode ? "" : ": ";
-    const _emoji = settingsStore.settings.value.isEmoji ? parseEmojiValue() : "";
-    return `${_type}${_scope}${symbol}${_emoji} ${subject.value}`;
+    const _emoji = settingsStore.settings.value.isEmoji ? parseEmojiValue() + " " : "";
+    return `${_type}${_scope}${symbol}${_emoji}${subject.value}`;
 });
 
 const content = computed(() => {
