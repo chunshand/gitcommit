@@ -10,9 +10,9 @@ export const useFocusInput = () => {
       const focusInput = () => {
         // todo:下一个naive-ui版本的api，用pnpm打个补丁先用
         searchEmoji.value?.focusInput();
-        return focusInput;
       };
-      setInterval(focusInput(), 1500);
+      nextTick(() => focusInput());
+      setInterval(focusInput, 1500);
     }
   );
   return searchEmoji;
