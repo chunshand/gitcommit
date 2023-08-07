@@ -35,8 +35,8 @@
                                 v-model:value="scope"
                                 size="large"
                                 placeholder="范围(非必填)"
-                                autofocus
                                 :disabled="settingsStore.settings.value.isEmojiMode"
+                                ref="scopRef"
                             ></NInput>
                         </NGridItem>
                         <NGridItem span="4  800:4">
@@ -143,6 +143,7 @@ import { rawEmojis, typeData } from "@/data";
 import { useSearchTxtArr, useFilterEmoji, useFocusInput } from "@/composables/useSearch";
 import { settingsStore } from "@/store";
 import EmojiLabel from "./EmojiLabel.vue";
+import { InputInst } from "naive-ui";
 
 const SettingsView = defineAsyncComponent(() => import("@/components/SettingsView.vue"));
 
@@ -344,7 +345,8 @@ const handleClearHigLog = () => {
     });
 };
 
-const searchEmoji = useFocusInput();
+const scopRef = ref<InputInst>();
+const searchEmoji = useFocusInput(scopRef as Ref<InputInst>);
 
 const parseEmojiValue = () => {
     const tempEmojis = emoji.value.split(" ");

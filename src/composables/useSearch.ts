@@ -1,19 +1,25 @@
-import type { SelectInst, SelectOption } from "naive-ui";
+import type { InputInst, SelectInst, SelectOption } from "naive-ui";
 import type { RawEmoji } from "@/data";
 import { settingsStore } from "@/store";
 
-export const useFocusInput = () => {
+export const useFocusInput = (scopRef: Ref<InputInst>) => {
   let searchEmoji = ref<SelectInst>();
-  whenever(
+  watch(
     () => settingsStore.settings.value.isEmojiMode,
     () => {
       const focusInput = () => {
+        if (!settingsStore.settings.value.isEmojiMode) {
+          scopRef.value.focus();
+          clearInterval(timed);
+          return;
+        }
         // todo:下一个naive-ui版本的api，用pnpm打个补丁先用
         searchEmoji.value?.focusInput();
-        return focusInput;
       };
-      setInterval(focusInput(), 1500);
-    }
+      nextTick(() => focusInput());
+      const timed = setInterval(focusInput, 1500);
+    },
+    { immediate: true }
   );
   return searchEmoji;
 };
