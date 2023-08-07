@@ -6,8 +6,14 @@ export const useFocusInput = () => {
   let searchEmoji = ref<SelectInst>();
   whenever(
     () => settingsStore.settings.value.isEmojiMode,
-    // todo:下一个naive-ui版本的api，用pnpm打个补丁先用
-    () => searchEmoji.value?.focusInput()
+    () => {
+      const focusInput = () => {
+        // todo:下一个naive-ui版本的api，用pnpm打个补丁先用
+        searchEmoji.value?.focusInput();
+        return focusInput;
+      };
+      setInterval(focusInput(), 1500);
+    }
   );
   return searchEmoji;
 };
