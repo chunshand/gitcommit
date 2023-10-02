@@ -3,6 +3,7 @@ export type RawEmoji = Record<
     string
 >
 
+// based on https://github.com/carloscuesta/gitmoji/blob/master/packages/gitmojis/src/gitmojis.json
 export const rawEmojis: RawEmoji[] = [
     {
         "name": "art",
@@ -41,9 +42,9 @@ export const rawEmojis: RawEmoji[] = [
         "emoji": "✨",
     },
     {
-        "name": "pencil",
-        "description": "写文档",
-        "pinyin": "xie wen dang",
+        "name": "memo",
+        "description": "添加或更新文档",
+        "pinyin": "tian jia huo geng xin wen dang",
         "emoji": "📝",
     },
     {
@@ -365,12 +366,6 @@ export const rawEmojis: RawEmoji[] = [
         "emoji": "🛠️",
     },
     {
-        "name": "wrench",
-        "description": "不影响代码的其余变动",
-        "pinyin": "bu ying xiang dai ma de qi yu bian dong",
-        "emoji": "🔧",
-    },
-    {
         "name": "mag",
         "description": "改进搜索引擎优化",
         "pinyin": "gai jin sou suo yin qing you hua",
@@ -387,5 +382,121 @@ export const rawEmojis: RawEmoji[] = [
         "description": "添加或者更新类型（Flow, TypeScript）",
         "pinyin": "tian jia huo zhe geng xin lei xing ( Flow, TypeScript )",
         "emoji": "🏷️",
+    },
+    {
+        "name": "closed_lock_with_key",
+        "description": "添加或更新机密",
+        "pinyin": "tian jia huo geng xin ji mi",
+        "emoji": "🔐",
+    },
+    {
+        "name": "hammer",
+        "description": "添加或更新开发脚本",
+        "pinyin": "tian jia huo geng xin kai fa jiao ben",
+        "emoji": "🔨",
+    },
+    {
+        "name": "seedling",
+        "description": "添加或更新种子文件",
+        "pinyin": "tian jia huo geng xin zhong zi wen jian",
+        "emoji": "🌱",
+    },
+    {
+        "name": "triangular_flag_on_post",
+        "description": "添加、更新或删除功能标志",
+        "pinyin": "tian jia 、 geng xin huo shan chu gong neng biao zhi",
+        "emoji": "🚩",
+    },
+    {
+        "name": "goal_net",
+        "description": "捕获错误",
+        "pinyin": "bu huo cuo wu",
+        "emoji": "🥅",
+    },
+    {
+        "name": "dizzy",
+        "description": "添加或更新动画和过渡",
+        "pinyin": "tian jia huo geng xin dong hua he guo du",
+        "emoji": "💫",
+    },
+    {
+        "name": "wastebasket",
+        "description": "弃用需要清理的代码",
+        "pinyin": "qi yong xu yao qing li de dai ma",
+        "emoji": "🗑️",
+    },
+    {
+        "name": "passport_control",
+        "description": "编写与授权、角色和权限相关的代码",
+        "pinyin":
+            "bian xie yu shou quan 、 jiao se he quan xian xiang guan de dai ma",
+        "emoji": "🛂",
+    },
+    {
+        "name": "adhesive_bandage",
+        "description": "针对非关键问题的简单修复",
+        "pinyin": "zhen dui fei guan jian wen ti de jian dan xiu fu",
+        "emoji": "🩹",
+    },
+    {
+        "name": "monocle_face",
+        "description": "数据探索/检查",
+        "pinyin": "shu ju tan suo / jian cha",
+        "emoji": "🧐",
+    },
+    {
+        "name": "coffin",
+        "description": "删除死代码",
+        "pinyin": "shan chu si dai ma",
+        "emoji": "⚰️",
+    },
+    {
+        "name": "test_tube",
+        "description": "添加一个失败测试",
+        "pinyin": "tian jia yi ge shi bai ce shi",
+        "emoji": "🧪",
+    },
+    {
+        "name": "necktie",
+        "description": "添加或更新业务逻辑",
+        "pinyin": "tian jia huo geng xin ye wu luo ji",
+        "emoji": "👔",
+    },
+    {
+        "name": "stethoscope",
+        "description": "添加或更新运行状况检查",
+        "pinyin": "tian jia huo geng xin yun xing zhuang kuang jian cha",
+        "emoji": "🩺",
+    },
+    {
+        "name": "bricks",
+        "description": "与基础设施相关的更改",
+        "pinyin": "yu ji chu she shi xiang guan de geng gai",
+        "emoji": "🧱",
+    },
+    {
+        "name": "technologist",
+        "description": "改善开发人员体验",
+        "pinyin": "gai shan kai fa ren yuan ti yan",
+        "emoji": "🧑‍💻",
+    },
+    {
+        "name": "money_with_wings",
+        "description": "添加赞助或与资金相关的基础设施",
+        "pinyin": "tian jia zan zhu huo yu zi jin xiang guan de ji chu she shi",
+        "emoji": "💸",
+    },
+    {
+        "name": "thread",
+        "description": "添加或更新与多线程或并发相关的代码",
+        "pinyin":
+            "tian jia huo geng xin yu duo xian cheng huo bing fa xiang guan de dai ma",
+        "emoji": "🧵",
+    },
+    {
+        "name": "safety_vest",
+        "description": "添加或更新与验证相关的代码",
+        "pinyin": "tian jia huo geng xin yu yan zheng xiang guan de dai ma",
+        "emoji": "🦺",
     },
 ]

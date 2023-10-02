@@ -48,7 +48,7 @@ export const typeData = [
     {
         value: "chore",
         label: "不影响代码的其余变动(chore)",
-        emoji: "🔧",
+        emoji: "📦",
     },
     {
         value: "revert",
