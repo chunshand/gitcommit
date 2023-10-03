@@ -11,7 +11,7 @@
   "dependencies": {
     "@vueuse/core": "^7.7.1",
     "gemoji": "^7.1.0",
-    "naive-ui": "^2.34.4",
+    "naive-ui": "^2.35.0",
     "vue": "^3.3.2"
   },
   "devDependencies": {
@@ -28,9 +28,7 @@
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
   },
-  "pnpm": {
-    "patchedDependencies": {
-      "naive-ui@2.34.4": "patches/naive-ui@2.34.4.patch"
-    }
+  "engines": {
+    "pnpm": ">=8.7.0"
   }
 }

@@ -10,6 +10,7 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     EmojiLabel: typeof import('./src/components/EmojiLabel.vue')['default']
+    Help: typeof import('./src/components/Help.vue')['default']
     Home: typeof import('./src/components/home.vue')['default']
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']

@@ -5,7 +5,7 @@
                 <NSpace vertical>
                     <NSpace justify="end" align="center" size="large">
                         <NButton size="small" @click="settingRef?.switchSetting"> 设置 </NButton>
-                        <NButton size="small" @click="help = true"> 帮助 </NButton>
+                        <NButton size="small" @click="helpRef?.switchHelp"> 帮助 </NButton>
                         <NButton size="small" @click="show = true"> 预览 </NButton>
                         <NButton type="warning" size="small" @click="handleClear">重置内容</NButton>
                         &nbsp;
@@ -19,7 +19,7 @@
                         </NButton>
                     </NSpace>
                     <NGrid cols="10" x-gap="12" y-gap="8">
-                        <NGridItem span="4 800:4">
+                        <NGridItem :span="useGetSpan({ gitc: '4 800:4', gitemoji: '0' })">
                             <NSelect
                                 v-model:value="type"
                                 filterable
@@ -30,7 +30,7 @@
                             >
                             </NSelect>
                         </NGridItem>
-                        <NGridItem span="6 800:6">
+                        <NGridItem :span="useGetSpan({ gitc: '6 800:6', gitemoji: '0' })">
                             <NInput
                                 v-model:value="scope"
                                 size="large"
@@ -39,7 +39,7 @@
                                 ref="scopRef"
                             ></NInput>
                         </NGridItem>
-                        <NGridItem span="4  800:4">
+                        <NGridItem :span="useGetSpan({ gitc: '4 800:4', gitemoji: '10' })">
                             <NSelect
                                 v-model:value="emoji"
                                 placeholder="emoji"
@@ -55,7 +55,7 @@
                             </NSelect>
                         </NGridItem>
 
-                        <NGridItem span="6 800:6">
+                        <NGridItem :span="useGetSpan({ gitc: '6 800:6', gitemoji: '0' })">
                             <NInput
                                 v-model:value="subject"
                                 :maxlength="50 - commitStr.length + subject.length"
@@ -120,26 +120,13 @@
             </NSpace>
         </NDrawerContent>
     </NDrawer>
-    <NDrawer v-model:show="help" height="80%" placement="bottom">
-        <NDrawerContent>
-            <NSpace vertical>
-                <NText depth="1"> 帮助： </NText>
-                <NText depth="3"> <NText code>Ctrl + Shift + C</NText> 快速复制 并关闭工具 </NText>
-                <NText depth="3"> <NText code>Ctrl + Shift + R</NText> 重置内容 </NText>
-                <NText depth="3"> <NText code>Ctrl + P</NText> 快速打开预览，关闭预览 </NText>
-                <NText depth="3"> <NText code>Tab</NText> 快速切换输入框 </NText>
-                <NText depth="3">
-                    历史记录最多保存5条历史，单击复制信息内容，双击将对应信息内容设置到表单，方便二次编辑
-                </NText>
-            </NSpace>
-        </NDrawerContent>
-    </NDrawer>
+    <Help ref="helpRef" />
     <SettingsView ref="settingRef" />
 </template>
 <script setup lang="ts">
 import useUtools, { paste } from "@/composables/useUtools";
 import { rawEmojis, typeData } from "@/data";
-import { useSearchTxtArr, useFilterEmoji, useFocusInput } from "@/composables/useSearch";
+import { useSearchTxtArr, useFilterEmoji, useFocusInput, useGetSpan } from "@/composables/useSearch";
 import { settingsStore } from "@/store";
 import EmojiLabel from "./EmojiLabel.vue";
 import { InputInst } from "naive-ui";
@@ -153,8 +140,10 @@ import { InputInst } from "naive-ui";
 // })))
 
 const SettingsView = defineAsyncComponent(() => import("@/components/SettingsView.vue"));
+const Help = defineAsyncComponent(() => import("@/components/Help.vue"));
 
 const settingRef = ref<InstanceType<typeof SettingsView>>();
+const helpRef = ref<InstanceType<typeof Help>>();
 
 let clickTimer: any = null;
 const _historyLogKEY = "historyLog";
@@ -191,7 +180,6 @@ const keys = useMagicKeys();
 const shiftCtrlC = keys["Shift+Ctrl+C"];
 const shiftCtrlR = keys["Shift+Ctrl+R"];
 const show = ref(false);
-const help = ref(false);
 const CtrlP = keys["Ctrl+P"];
 // 复制
 whenever(shiftCtrlC, () => {
@@ -279,7 +267,7 @@ const commitStr = computed(() => {
     const { isEmojiMode } = settingsStore.settings.value;
 
     const _type = isEmojiMode ? "" : type.value;
-    const _scope = scope.value ? `( ${scope.value} )` : "";
+    const _scope = scope.value ? `(${scope.value})` : "";
     const symbol = isEmojiMode ? "" : ": ";
     const _emoji = settingsStore.settings.value.isEmoji ? parseEmojiValue() + " " : "";
     return `${_type}${_scope}${symbol}${_emoji}${subject.value}`;

@@ -4,6 +4,7 @@ import { settingsStore } from "@/store";
 
 export const useFocusInput = (scopRef: Ref<InputInst>) => {
   let searchEmoji = ref<SelectInst>();
+  const { error } = useMessage();
   watch(
     () => settingsStore.settings.value.isEmojiMode,
     () => {
@@ -13,8 +14,13 @@ export const useFocusInput = (scopRef: Ref<InputInst>) => {
           clearInterval(timed);
           return;
         }
-        // todo:下一个naive-ui版本的api，用pnpm打个补丁先用
-        searchEmoji.value?.focusInput();
+        try {
+          // todo:naive-ui@2.35.0已增加
+          searchEmoji.value!.focusInput();
+        } catch (err) {
+          error(`[FocusInput Error]:${err}`, { duration: 0, closable: true });
+          clearInterval(timed);
+        }
       };
       nextTick(() => focusInput());
       const timed = setInterval(focusInput, 1500);
@@ -64,3 +70,6 @@ export const useFilterEmoji = (pattern: string, option: SelectOption) => {
     searchTxtArr.des.includes(pattern)
   );
 };
+
+export const useGetSpan = (options: { gitc: string; gitemoji: string }) =>
+  settingsStore.settings.value.isEmojiMode ? options.gitemoji : options.gitc;
