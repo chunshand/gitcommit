@@ -47,7 +47,7 @@ const helpContent: {
         }
     ],
     "gitemoji关键字": [
-        { commnet: "在该关键字下支持emoji中文或英文搜索" },
+        { commnet: "在该关键字下可直接使用英文或中文（首字母）搜索emoji" },
         { commnet: "选中emoji后按下回车可以快速复制" }
     ]
 }

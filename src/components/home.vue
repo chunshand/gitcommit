@@ -5,6 +5,7 @@
                 <NSpace vertical>
                     <NSpace justify="end" align="center" size="large">
                         <NButton size="small" @click="settingRef?.switchSetting"> 设置 </NButton>
+                        <NButton size="small" @click="customeEmojiRef?.switchCustom"> 自定义emoji </NButton>
                         <NButton size="small" @click="helpRef?.switchHelp"> 帮助 </NButton>
                         <NButton size="small" @click="show = true"> 预览 </NButton>
                         <NButton type="warning" size="small" @click="handleClear">重置内容</NButton>
@@ -44,7 +45,7 @@
                                 v-model:value="emoji"
                                 placeholder="emoji"
                                 size="large"
-                                :options="emojiOptions"
+                                :options="emojisStore.emojiOptions.value"
                                 filterable
                                 :disabled="!settingsStore.settings.value.isEmoji"
                                 ref="searchEmoji"
@@ -122,13 +123,13 @@
     </NDrawer>
     <Help ref="helpRef" />
     <SettingsView ref="settingRef" />
+    <CustomeEmoji ref="customeEmojiRef" />
 </template>
 <script setup lang="ts">
 import useUtools, { paste } from "@/composables/useUtools";
-import { rawEmojis, typeData } from "@/data";
-import { useSearchTxtArr, useFilterEmoji, useFocusInput, useGetSpan } from "@/composables/useSearch";
-import { settingsStore } from "@/store";
-import EmojiLabel from "./EmojiLabel.vue";
+import { typeData } from "@/data";
+import { useFilterEmoji, useFocusInput, useGetSpan } from "@/composables/useSearch";
+import { settingsStore, useEmojisStore } from "@/store";
 import { InputInst } from "naive-ui";
 
 // todo:添加新emoji时在重新生成rawEmojis
@@ -141,9 +142,11 @@ import { InputInst } from "naive-ui";
 
 const SettingsView = defineAsyncComponent(() => import("@/components/SettingsView.vue"));
 const Help = defineAsyncComponent(() => import("@/components/Help.vue"));
+const CustomeEmoji = defineAsyncComponent(() => import("@/components/CustomEmoji.vue"));
 
 const settingRef = ref<InstanceType<typeof SettingsView>>();
 const helpRef = ref<InstanceType<typeof Help>>();
+const customeEmojiRef = ref<InstanceType<typeof CustomeEmoji>>();
 
 let clickTimer: any = null;
 const _historyLogKEY = "historyLog";
@@ -231,27 +234,17 @@ const handleCopy = async () => {
 // https://github.com/conventional-changelog/commitlint/blob/master/%40commitlint/config-conventional/index.js
 const typeOptions = ref(typeData);
 
-const emojiOptions = rawEmojis.map((item) => ({
-    ...item,
-    searchTxtArr: useSearchTxtArr(item),
-    value: `${item.emoji} :${item.name}:`,
-    label: () =>
-        h(EmojiLabel, {
-            label: {
-                emoji: item.emoji,
-                emojiCode: `:${item.name}:`,
-                description: item.description
-            }
-        })
-}));
+const emojisStore = useEmojisStore();
 
 // 默认emoji
-const defatltEmoji = ref(emojiOptions[5].value);
+const defatltEmoji = ref(emojisStore.emojiOptions.value[0].value);
 // 类型
 const type = ref("feat");
 watch(type, (val) => {
     const _emoji = typeOptions.value.find((item) => item.value === val)!.emoji;
-    emoji.value = emojiOptions.find((item) => item.value.startsWith(_emoji))?.value ?? defatltEmoji.value;
+    emoji.value =
+        emojisStore.emojiOptions.value.find((item) => item.value.startsWith(_emoji))?.value ??
+        defatltEmoji.value;
 });
 // 范围
 const scope = ref("");
