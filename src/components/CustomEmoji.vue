@@ -2,11 +2,17 @@
     <NDrawer v-model:show="isOpenWindow" height="70%" placement="bottom">
         <NDrawerContent>
             <NSpace vertical>
-                <div>
-                    <NText depth="1">自定义emoji： </NText>
+                <NSpace>
+                    <NText depth="1"> 自定义emoji： </NText>
                     <NButton type="success" size="small" @click="saveEmojisData">保存</NButton>
-                </div>
-                <NInput v-model:value="userEmojis" type="textarea" rows="13" :status="inputStatus" />
+                </NSpace>
+                <NInput
+                    v-model:value="userEmojis"
+                    type="textarea"
+                    rows="13"
+                    :status="inputStatus"
+                    placeholder="详细使用说明请在‘帮助’中查看"
+                />
             </NSpace>
         </NDrawerContent>
     </NDrawer>
@@ -21,9 +27,9 @@ isOpenWindow.value = true
 defineExpose({ switchCustom })
 
 const { error, success } = useMessage()
-const { updateEmojis, customEmojis, saveCustomEmojis } = useEmojisStore()
+const { updateEmojis, customEmojis } = useEmojisStore()
 
-let userEmojis = ref(JSON.stringify(customEmojis, undefined, 2))
+let userEmojis = ref(customEmojis.value.length === 0 ? "" : JSON.stringify(customEmojis.value, undefined, 2))
 let inputStatus = ref<"success" | "error">("success")
 
 const customEorror = (str: string) => {
@@ -58,10 +64,11 @@ const validEmojiKey = (emojisData: RawEmoji[]) => {
 
 const saveEmojisData = () => {
     try {
+        if (userEmojis.value === "") return updateEmojis([])
         let emojisData: RawEmoji[] = JSON.parse(userEmojis.value)
+
         if (!validEmojiKey(emojisData)) return
         updateEmojis(emojisData)
-        saveCustomEmojis(emojisData)
         customSuccess("保存成功")
     } catch (err) {
         customEorror(`[JSON Error]:${err}`)

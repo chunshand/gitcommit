@@ -78,36 +78,6 @@ export const rawEmojis: RawEmoji[] = [
         "emoji": "🔒",
     },
     {
-        "name": "apple",
-        "description": "修复在苹果系统上的问题",
-        "pinyin": "xiu fu zai ping guo xi tong shang de wen ti",
-        "emoji": "🍎",
-    },
-    {
-        "name": "penguin",
-        "description": "修复在 Linux 系统上的问题",
-        "pinyin": "xiu fu zai Linux xi tong shang de wen ti",
-        "emoji": "🐧",
-    },
-    {
-        "name": "checkered_flag",
-        "description": "修复在 Windows 系统上的问题",
-        "pinyin": "xiu fu zai Windows xi tong shang de wen ti",
-        "emoji": "🏁",
-    },
-    {
-        "name": "robot",
-        "description": "修复在安卓系统上的问题",
-        "pinyin": "xiu fu zai an zhuo xi tong shang de wen ti",
-        "emoji": "🤖",
-    },
-    {
-        "name": "green_apple",
-        "description": "修复在 iOS 系统上的问题",
-        "pinyin": "xiu fu zai iOS xi tong shang de wen ti",
-        "emoji": "🍏",
-    },
-    {
         "name": "bookmark",
         "description": "发布 / 版本标签",
         "pinyin": "fa bu / ban ben biao qian",
@@ -166,12 +136,6 @@ export const rawEmojis: RawEmoji[] = [
         "description": "代码重构",
         "pinyin": "dai ma chong gou",
         "emoji": "♻️",
-    },
-    {
-        "name": "whale",
-        "description": "Docker 容器相关",
-        "pinyin": "Docker rong qi xiang guan",
-        "emoji": "🐳",
     },
     {
         "name": "heavy_plus_sign",
@@ -256,12 +220,6 @@ export const rawEmojis: RawEmoji[] = [
         "description": "添加或者更新静态资源",
         "pinyin": "tian jia huo zhe geng xin jing tai zi yuan",
         "emoji": "🍱",
-    },
-    {
-        "name": "ok_hand",
-        "description": "代码审核后更新代码",
-        "pinyin": "dai ma shen he hou geng xin dai ma",
-        "emoji": "👌",
     },
     {
         "name": "wheelchair",
@@ -370,12 +328,6 @@ export const rawEmojis: RawEmoji[] = [
         "description": "改进搜索引擎优化",
         "pinyin": "gai jin sou suo yin qing you hua",
         "emoji": "🔍",
-    },
-    {
-        "name": "wheel_of_dharma",
-        "description": "Kubernetes 相关的工作",
-        "pinyin": "Kubernetes xiang guan de gong zuo",
-        "emoji": "☸️",
     },
     {
         "name": "label",
