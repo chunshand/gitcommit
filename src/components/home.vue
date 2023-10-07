@@ -20,7 +20,7 @@
                         </NButton>
                     </NSpace>
                     <NGrid cols="10" x-gap="12" y-gap="8">
-                        <NGridItem :span="useGetSpan({ gitc: '4 800:4', gitemoji: '0' })">
+                        <NGridItem span="4 800:4" v-show="!settingsStore.settings.value.isEmojiMode">
                             <NSelect
                                 v-model:value="type"
                                 filterable
@@ -49,7 +49,7 @@
                                 :disabled="!settingsStore.settings.value.isEmoji"
                                 ref="searchEmoji"
                                 :filter="useFilterEmoji"
-                                :show="settingsStore.settings.value.isEmojiMode ? true : undefined"
+                                :show-on-focus="true"
                                 @update:value="settingsStore.settings.value.isEmojiMode && handleCopy()"
                             >
                             </NSelect>

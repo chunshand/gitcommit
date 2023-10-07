@@ -81,7 +81,7 @@ const helpContent: {
     "emoji": "🍎"
   }
 ]
-    </pre></b>`
+    </pre>`
         }
     ]
 }
