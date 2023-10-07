@@ -23,7 +23,6 @@ import { type RawEmoji } from "@/data"
 import { useEmojisStore } from "@/store"
 
 let { isOpenWindow, switchWindow: switchCustom } = useWindowHandle()
-isOpenWindow.value = true
 defineExpose({ switchCustom })
 
 const { error, success } = useMessage()
@@ -40,18 +39,22 @@ const customSuccess = (str: string) => {
     success(str)
     inputStatus.value = "success"
 }
-
+watch(isOpenWindow, (nVal) => {
+    if (nVal) {
+        inputStatus.value = "success"
+    }
+})
 /**
  * 验证自定义emoji的每个对象是否存在特定key
  * @param emojisData
  * @returns boolean 每个对象都存在keys时才返回true
  */
 const validEmojiKey = (emojisData: RawEmoji[]) => {
-    const keys = ["name", "emoji"]
+    const keys = ["name"]
     return !emojisData.some((emojiItem) => {
         let flag = emojiItem.hasOwnProperty(keys[0]) ? false : keys[0]
 
-        flag = flag === false ? (emojiItem.hasOwnProperty(keys[1]) ? false : keys[1]) : flag
+        // flag = flag === false ? (emojiItem.hasOwnProperty(keys[1]) ? false : keys[1]) : flag
 
         if (keys.includes(flag as string)) {
             // 不存在flag键，终止遍历并返回true

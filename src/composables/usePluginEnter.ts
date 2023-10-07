@@ -13,3 +13,10 @@ export default function usePluginEnter(
     return hook(action as IPluginEnterAction);
   });
 }
+
+export const usePluginActive = (callback: () => void) => {
+  const onVisibilityChange = function () {
+    if (!document.hidden) callback();
+  };
+  document.addEventListener("visibilitychange", onVisibilityChange);
+};

@@ -29,7 +29,6 @@
 </template>
 <script setup lang="ts">
 import { useWindowHandle } from "@/composables/useWindowHandle"
-import { rawEmojis } from "@/data"
 
 let { isOpenWindow: openHelp, switchWindow: switchHelp } = useWindowHandle()
 defineExpose({ switchHelp })
@@ -61,7 +60,7 @@ const helpContent: {
         {
             commnet: `每个对象包含以下四个键：<ul>
                 <li><b>name</b>(必填)：emoji的代码，例<b>:fire:</b> 填入时不需要两端<b>:</b>，<b>name</b>值相同的对象，<u>后面的对象会覆盖前面</u>的，据此可更改内置的emoji</li>
-                <li><b>emoji</b>(必填)：emoji代码对应的表情，例<b>🔥</b>  </li>
+                <li><b>emoji</b>(可省略)：emoji代码对应的表情，例<b>🔥</b>，如果是新添加的emoji不建议省略！</li>
                 <li><b>description</b>(可省略)： 对该表情的使用描述，例<b>删除代码或者文件</b> </li>
                 <li><b>pinyin</b>(可省略)：自定义关键字，可以使用对应拼音<b>shan chu dai ma huo zhe wen jian</b>（每个汉字的拼音请用空格隔开，以便支持首字母搜索），也可以自己定义<b>hello</b></li>
                 <li>以上四个键的值都能作为搜索条件哦</li></ul>
@@ -71,7 +70,11 @@ const helpContent: {
             commnet: `以下是示例代码。第一个对象更改内置的fire表情的描述和pinyin，之后可以在搜索中输入hello快速查找；第二个对象新添了一个emoji信息<br/>
     <pre>
 [
-  ${JSON.stringify({ ...rawEmojis[2], pinyin: "hello", description: "这是更改后的描述" }, undefined, 4)},{
+  {
+    "name": "fire",
+    "description": "这是更改后的描述",
+    "pinyin": "hello",
+  },{
     "name": "apple",
     "description": "修复在苹果系统上的问题",
     "pinyin": "xiu fu zai ping guo xi tong shang de wen ti",

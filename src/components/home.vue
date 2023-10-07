@@ -37,7 +37,6 @@
                                 size="large"
                                 placeholder="范围(非必填)"
                                 :disabled="settingsStore.settings.value.isEmojiMode"
-                                ref="scopRef"
                             ></NInput>
                         </NGridItem>
                         <NGridItem :span="useGetSpan({ gitc: '4 800:4', gitemoji: '10' })">
@@ -64,6 +63,7 @@
                                 size="large"
                                 :placeholder="`简短描述(必填),最多50字`"
                                 :disabled="settingsStore.settings.value.isEmojiMode"
+                                ref="scopRef"
                             >
                                 <template #suffix>
                                     <n-text :type="50 - commitStr.length < 10 ? 'error' : 'warning'">
@@ -130,9 +130,9 @@ import useUtools, { paste } from "@/composables/useUtools";
 import { typeData } from "@/data";
 import { useFilterEmoji, useFocusInput, useGetSpan } from "@/composables/useSearch";
 import { settingsStore, useEmojisStore } from "@/store";
-import { InputInst } from "naive-ui";
+import { InputInst, SelectInst } from "naive-ui";
 
-// todo:添加新emoji时在重新生成rawEmojis
+// xxx:添加新emoji时在重新生成rawEmojis
 // import { nameToEmoji } from "gemoji";
 // 组成包含emoji的rawEmojis，复制到文件里
 // console.log(rawEmojis.map((item) => ({
@@ -334,7 +334,11 @@ const handleClearHigLog = () => {
 };
 
 const scopRef = ref<InputInst>();
-const searchEmoji = useFocusInput(scopRef as Ref<InputInst>);
+const searchEmoji = ref<SelectInst>();
+useFocusInput({
+    gitc: scopRef as Ref<InputInst>,
+    gitemoji: searchEmoji as Ref<SelectInst>
+});
 
 const parseEmojiValue = () => {
     const tempEmojis = emoji.value.split(" ");

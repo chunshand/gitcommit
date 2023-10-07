@@ -10,6 +10,10 @@ const readCustomEmojis = () => {
   return customEmoji;
 };
 
+const saveCustomEmojis = (customEmoji: RawEmoji[]) => {
+  utools.dbStorage.setItem(CUSTOM_EMOJIS_KEY, customEmoji);
+};
+
 const toEmojiOptions = (item: RawEmoji) => ({
   ...item,
   searchTxtArr: useSearchTxtArr(item),
@@ -49,10 +53,6 @@ type EmojiOptionsType = ReturnType<typeof toEmojiOptions>;
 export const useEmojisStore = createGlobalState(() => {
   let newCustomEmojis = ref(readCustomEmojis());
 
-  const saveCustomEmojis = (customEmoji: RawEmoji[]) => {
-    utools.dbStorage.setItem(CUSTOM_EMOJIS_KEY, customEmoji);
-  };
-
   const updateEmojis = (customEmojis: RawEmoji[]) => {
     newCustomEmojis.value = compareArrays(customEmojis);
     saveCustomEmojis(customEmojis);
@@ -83,7 +83,6 @@ export const useEmojisStore = createGlobalState(() => {
   return {
     emojiOptions,
     updateEmojis,
-    customEmojis: newCustomEmojis,
-    saveCustomEmojis
+    customEmojis: newCustomEmojis
   };
 });
