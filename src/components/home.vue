@@ -240,12 +240,17 @@ const emojisStore = useEmojisStore();
 const defatltEmoji = ref(emojisStore.emojiOptions.value[0].value);
 // 类型
 const type = ref("feat");
-watch(type, (val) => {
-    const _emoji = typeOptions.value.find((item) => item.value === val)!.emoji;
-    emoji.value =
-        emojisStore.emojiOptions.value.find((item) => item.value.startsWith(_emoji))?.value ??
-        defatltEmoji.value;
-});
+const emoji = ref(defatltEmoji.value);
+watch(
+    type,
+    (val) => {
+        const _emoji = typeOptions.value.find((item) => item.value === val)!.emoji;
+        emoji.value =
+            emojisStore.emojiOptions.value.find((item) => item.value.startsWith(_emoji))?.value ??
+            defatltEmoji.value;
+    },
+    { immediate: true }
+);
 // 范围
 const scope = ref("");
 // 简短描述
@@ -253,8 +258,6 @@ const subject = ref("");
 
 // body
 const body = ref("");
-
-const emoji = ref(defatltEmoji.value);
 
 const commitStr = computed(() => {
     const { isEmojiMode } = settingsStore.settings.value;

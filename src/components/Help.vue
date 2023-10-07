@@ -73,7 +73,7 @@ const helpContent: {
   {
     "name": "fire",
     "description": "这是更改后的描述",
-    "pinyin": "hello",
+    "pinyin": "hello"
   },{
     "name": "apple",
     "description": "修复在苹果系统上的问题",
