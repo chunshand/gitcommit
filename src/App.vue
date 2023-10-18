@@ -1,7 +1,7 @@
 <template>
   <NConfigProvider :theme="theme">
     <NDialogProvider>
-      <NMessageProvider>
+      <NMessageProvider :max="6">
         <Home />
       </NMessageProvider>
     </NDialogProvider>

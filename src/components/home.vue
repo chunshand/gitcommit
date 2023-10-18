@@ -5,7 +5,8 @@
                 <NSpace vertical>
                     <NSpace justify="end" align="center" size="large">
                         <NButton size="small" @click="settingRef?.switchSetting"> 设置 </NButton>
-                        <NButton size="small" @click="help = true"> 帮助 </NButton>
+                        <NButton size="small" @click="customeEmojiRef?.switchCustom"> 自定义emoji </NButton>
+                        <NButton size="small" @click="helpRef?.switchHelp"> 帮助 </NButton>
                         <NButton size="small" @click="show = true"> 预览 </NButton>
                         <NButton type="warning" size="small" @click="handleClear">重置内容</NButton>
                         &nbsp;
@@ -19,7 +20,7 @@
                         </NButton>
                     </NSpace>
                     <NGrid cols="10" x-gap="12" y-gap="8">
-                        <NGridItem span="4 800:4">
+                        <NGridItem span="4 800:4" v-show="!settingsStore.settings.value.isEmojiMode">
                             <NSelect
                                 v-model:value="type"
                                 filterable
@@ -30,32 +31,31 @@
                             >
                             </NSelect>
                         </NGridItem>
-                        <NGridItem span="6 800:6">
+                        <NGridItem :span="useGetSpan({ gitc: '6 800:6', gitemoji: '0' })">
                             <NInput
                                 v-model:value="scope"
                                 size="large"
                                 placeholder="范围(非必填)"
                                 :disabled="settingsStore.settings.value.isEmojiMode"
-                                ref="scopRef"
                             ></NInput>
                         </NGridItem>
-                        <NGridItem span="4  800:4">
+                        <NGridItem :span="useGetSpan({ gitc: '4 800:4', gitemoji: '10' })">
                             <NSelect
                                 v-model:value="emoji"
                                 placeholder="emoji"
                                 size="large"
-                                :options="emojiOptions"
+                                :options="emojisStore.emojiOptions.value"
                                 filterable
                                 :disabled="!settingsStore.settings.value.isEmoji"
                                 ref="searchEmoji"
                                 :filter="useFilterEmoji"
-                                :show="settingsStore.settings.value.isEmojiMode ? true : undefined"
+                                :show-on-focus="true"
                                 @update:value="settingsStore.settings.value.isEmojiMode && handleCopy()"
                             >
                             </NSelect>
                         </NGridItem>
 
-                        <NGridItem span="6 800:6">
+                        <NGridItem :span="useGetSpan({ gitc: '6 800:6', gitemoji: '0' })">
                             <NInput
                                 v-model:value="subject"
                                 :maxlength="50 - commitStr.length + subject.length"
@@ -63,6 +63,7 @@
                                 size="large"
                                 :placeholder="`简短描述(必填),最多50字`"
                                 :disabled="settingsStore.settings.value.isEmojiMode"
+                                ref="scopRef"
                             >
                                 <template #suffix>
                                     <n-text :type="50 - commitStr.length < 10 ? 'error' : 'warning'">
@@ -120,31 +121,18 @@
             </NSpace>
         </NDrawerContent>
     </NDrawer>
-    <NDrawer v-model:show="help" height="80%" placement="bottom">
-        <NDrawerContent>
-            <NSpace vertical>
-                <NText depth="1"> 帮助： </NText>
-                <NText depth="3"> <NText code>Ctrl + Shift + C</NText> 快速复制 并关闭工具 </NText>
-                <NText depth="3"> <NText code>Ctrl + Shift + R</NText> 重置内容 </NText>
-                <NText depth="3"> <NText code>Ctrl + P</NText> 快速打开预览，关闭预览 </NText>
-                <NText depth="3"> <NText code>Tab</NText> 快速切换输入框 </NText>
-                <NText depth="3">
-                    历史记录最多保存5条历史，单击复制信息内容，双击将对应信息内容设置到表单，方便二次编辑
-                </NText>
-            </NSpace>
-        </NDrawerContent>
-    </NDrawer>
+    <Help ref="helpRef" />
     <SettingsView ref="settingRef" />
+    <CustomeEmoji ref="customeEmojiRef" />
 </template>
 <script setup lang="ts">
 import useUtools, { paste } from "@/composables/useUtools";
-import { rawEmojis, typeData } from "@/data";
-import { useSearchTxtArr, useFilterEmoji, useFocusInput } from "@/composables/useSearch";
-import { settingsStore } from "@/store";
-import EmojiLabel from "./EmojiLabel.vue";
-import { InputInst } from "naive-ui";
+import { typeData } from "@/data";
+import { useFilterEmoji, useFocusInput, useGetSpan } from "@/composables/useSearch";
+import { settingsStore, useEmojisStore } from "@/store";
+import { InputInst, SelectInst } from "naive-ui";
 
-// todo:添加新emoji时在重新生成rawEmojis
+// xxx:添加新emoji时在重新生成rawEmojis
 // import { nameToEmoji } from "gemoji";
 // 组成包含emoji的rawEmojis，复制到文件里
 // console.log(rawEmojis.map((item) => ({
@@ -153,8 +141,12 @@ import { InputInst } from "naive-ui";
 // })))
 
 const SettingsView = defineAsyncComponent(() => import("@/components/SettingsView.vue"));
+const Help = defineAsyncComponent(() => import("@/components/Help.vue"));
+const CustomeEmoji = defineAsyncComponent(() => import("@/components/CustomEmoji.vue"));
 
 const settingRef = ref<InstanceType<typeof SettingsView>>();
+const helpRef = ref<InstanceType<typeof Help>>();
+const customeEmojiRef = ref<InstanceType<typeof CustomeEmoji>>();
 
 let clickTimer: any = null;
 const _historyLogKEY = "historyLog";
@@ -191,7 +183,6 @@ const keys = useMagicKeys();
 const shiftCtrlC = keys["Shift+Ctrl+C"];
 const shiftCtrlR = keys["Shift+Ctrl+R"];
 const show = ref(false);
-const help = ref(false);
 const CtrlP = keys["Ctrl+P"];
 // 复制
 whenever(shiftCtrlC, () => {
@@ -243,28 +234,23 @@ const handleCopy = async () => {
 // https://github.com/conventional-changelog/commitlint/blob/master/%40commitlint/config-conventional/index.js
 const typeOptions = ref(typeData);
 
-const emojiOptions = rawEmojis.map((item) => ({
-    ...item,
-    searchTxtArr: useSearchTxtArr(item),
-    value: `${item.emoji} :${item.name}:`,
-    label: () =>
-        h(EmojiLabel, {
-            label: {
-                emoji: item.emoji,
-                emojiCode: `:${item.name}:`,
-                description: item.description
-            }
-        })
-}));
+const emojisStore = useEmojisStore();
 
 // 默认emoji
-const defatltEmoji = ref(emojiOptions[5].value);
+const defatltEmoji = ref(emojisStore.emojiOptions.value[0].value);
 // 类型
 const type = ref("feat");
-watch(type, (val) => {
-    const _emoji = typeOptions.value.find((item) => item.value === val)!.emoji;
-    emoji.value = emojiOptions.find((item) => item.value.startsWith(_emoji))?.value ?? defatltEmoji.value;
-});
+const emoji = ref(defatltEmoji.value);
+watch(
+    type,
+    (val) => {
+        const _emoji = typeOptions.value.find((item) => item.value === val)!.emoji;
+        emoji.value =
+            emojisStore.emojiOptions.value.find((item) => item.value.startsWith(_emoji))?.value ??
+            defatltEmoji.value;
+    },
+    { immediate: true }
+);
 // 范围
 const scope = ref("");
 // 简短描述
@@ -273,13 +259,11 @@ const subject = ref("");
 // body
 const body = ref("");
 
-const emoji = ref(defatltEmoji.value);
-
 const commitStr = computed(() => {
     const { isEmojiMode } = settingsStore.settings.value;
 
     const _type = isEmojiMode ? "" : type.value;
-    const _scope = scope.value ? `( ${scope.value} )` : "";
+    const _scope = scope.value ? `(${scope.value})` : "";
     const symbol = isEmojiMode ? "" : ": ";
     const _emoji = settingsStore.settings.value.isEmoji ? parseEmojiValue() + " " : "";
     return `${_type}${_scope}${symbol}${_emoji}${subject.value}`;
@@ -353,7 +337,11 @@ const handleClearHigLog = () => {
 };
 
 const scopRef = ref<InputInst>();
-const searchEmoji = useFocusInput(scopRef as Ref<InputInst>);
+const searchEmoji = ref<SelectInst>();
+useFocusInput({
+    gitc: scopRef as Ref<InputInst>,
+    gitemoji: searchEmoji as Ref<SelectInst>
+});
 
 const parseEmojiValue = () => {
     const tempEmojis = emoji.value.split(" ");

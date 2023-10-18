@@ -1,27 +1,35 @@
 import type { InputInst, SelectInst, SelectOption } from "naive-ui";
 import type { RawEmoji } from "@/data";
 import { settingsStore } from "@/store";
+import { usePluginActive } from "@/composables/usePluginEnter";
 
-export const useFocusInput = (scopRef: Ref<InputInst>) => {
-  let searchEmoji = ref<SelectInst>();
+export const useFocusInput = (focusElements: {
+  gitc: Ref<InputInst>;
+  gitemoji: Ref<SelectInst>;
+}) => {
+  const { gitc: scopRef, gitemoji: searchEmoji } = focusElements;
+  const { error } = useMessage();
+  let flag = true; // 在gitc关键字下只需要聚焦一次
   watch(
     () => settingsStore.settings.value.isEmojiMode,
     () => {
       const focusInput = () => {
         if (!settingsStore.settings.value.isEmojiMode) {
-          scopRef.value.focus();
-          clearInterval(timed);
+          flag && scopRef.value.focus();
+          flag = false;
           return;
         }
-        // todo:下一个naive-ui版本的api，用pnpm打个补丁先用
-        searchEmoji.value?.focusInput();
+        try {
+          // xxx:naive-ui@2.35.0已增加
+          searchEmoji.value!.focusInput();
+        } catch (err) {
+          error(`[FocusInput Error]:${err}`, { duration: 0, closable: true });
+        }
       };
-      nextTick(() => focusInput());
-      const timed = setInterval(focusInput, 1500);
+      usePluginActive(() => setTimeout(focusInput, 200));
     },
     { immediate: true }
   );
-  return searchEmoji;
 };
 
 export const useSearchTxtArr = (item: RawEmoji) => {
@@ -58,9 +66,12 @@ export const useFilterEmoji = (pattern: string, option: SelectOption) => {
   pattern = pattern.toLowerCase();
   return (
     // 默认先按照首字母匹配
-    searchTxtArr.py.includes(pattern) ||
+    searchTxtArr.py?.includes(pattern) ||
     (option.value as string).replace(" ", "").includes(pattern) ||
-    searchTxtArr.pinyin.includes(pattern) ||
-    searchTxtArr.des.includes(pattern)
+    searchTxtArr.pinyin?.includes(pattern) ||
+    searchTxtArr.des?.includes(pattern)
   );
 };
+
+export const useGetSpan = (options: { gitc: string; gitemoji: string }) =>
+  settingsStore.settings.value.isEmojiMode ? options.gitemoji : options.gitc;

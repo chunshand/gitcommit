@@ -8,8 +8,9 @@ interface Settings {
 }
 type SaveSettings = Omit<Settings, "isEmojiMode">;
 
+const SETTINGS_KEY = "SETTINGS_STORE";
+
 export const useSettingsStore = createGlobalState(() => {
-  const SETTINGS_KEY = "SETTINGS_STORE";
   const settings = ref<Settings>({
     isEmojiMode: false,
     ...(utools.dbStorage.getItem(SETTINGS_KEY) as SaveSettings)
@@ -22,7 +23,6 @@ export const useSettingsStore = createGlobalState(() => {
     Reflect.deleteProperty(saveSettings, "isEmojiMode");
     utools.dbStorage.setItem(SETTINGS_KEY, saveSettings);
   };
-
   const init = () => {
     if (settings.value?.autoPaste !== undefined) return;
 

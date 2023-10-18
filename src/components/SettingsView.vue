@@ -33,11 +33,9 @@
 
 <script setup lang="ts">
 import { settingsStore } from "@/store"
+import { useWindowHandle } from "@/composables/useWindowHandle"
 
-let openSetting = ref(false)
-const switchSetting = () => {
-    openSetting.value = !openSetting.value
-}
+let { isOpenWindow: openSetting, switchWindow: switchSetting } = useWindowHandle()
 defineExpose({ switchSetting })
 </script>
 
