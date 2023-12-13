@@ -53,7 +53,20 @@ export const useSearchTxtArr = (item: RawEmoji) => {
     des: item.description
   };
 };
-
+export const useFilterMsg = (
+  pattern: string,
+  option: SelectOption
+): boolean => {
+  pattern = pattern.trim();
+  if (pattern.length === 0) {
+    return true;
+  }
+  return (
+    option.emoji === pattern ||
+    (option.value as string)?.includes(pattern) ||
+    (option.label as string)?.includes(pattern)
+  );
+};
 export const useFilterEmoji = (pattern: string, option: SelectOption) => {
   pattern = pattern.trim();
   if (pattern.length === 0) return true;
