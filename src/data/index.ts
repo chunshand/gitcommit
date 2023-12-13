@@ -1,2 +1,2 @@
 export * from "./rawEmojis"
-export * from "./type"
+export * from "./commitMsg"

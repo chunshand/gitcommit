@@ -7,6 +7,7 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    CustomCommitMsg: typeof import("./src/components/CustomCommitMsg.vue")["default"];
     CustomEmoji: typeof import('./src/components/CustomEmoji.vue')['default']
     EmojiLabel: typeof import('./src/components/EmojiLabel.vue')['default']
     Help: typeof import('./src/components/Help.vue')['default']
