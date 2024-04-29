@@ -52,6 +52,41 @@ const helpContent: {
         { commnet: "在该关键字下可直接使用英文或中文（首字母）搜索emoji" },
         { commnet: "选中emoji后按下回车可以快速复制" }
     ],
+    "【自定义commit message】—— 更改已有或添加自己的message": [
+        {
+            commnet:
+                "请填入JSON<b>数组</b>格式的文本，数组中的每个元素都为对象，每个对象都是一个msg所需信息，格式大概是<b>message($范围): 描述</b>"
+        },
+        {
+            commnet: `每个对象包含以下三个键：<ul>
+                <li><b>value</b>(必填)：消息的内容，例<b>:fire:</b> 填入时不需要两端<b>:</b>，<b>name</b>值相同的对象，<u>后面的对象会覆盖前面</u>的，据此可更改内置的emoji</li>
+                <li><b>label</b>(必填)：该value的描述</li>
+                <li><b>emoji</b>(可省略)：这个将会与下方emoji选项对应。例如这里填写了🐛，下方的emoji选项将会自动选中🐛:bug项</li>
+                <li>以上的三个键的值都能作为搜索条件哦~</li></ul>
+                `
+        },
+        {
+            commnet: `以下是示例代码。第一和第二个为完整的自定义消息；第三个对象仅有必填项<br/>
+    <pre>
+[
+    {
+        "value": "wuhu",
+        "label": "芜湖",
+        "emoji": "😛"
+    },
+    {
+        "value": "fly",
+        "label": "起飞",
+        "emoji": "🛫"
+    },
+    {
+        "value": "wtf",
+        "label": "公司倒闭了"
+    }
+]
+    </pre>`
+        }
+    ],
     "【自定义emoji】—— 更改已有或添加自己的emoji": [
         {
             commnet:

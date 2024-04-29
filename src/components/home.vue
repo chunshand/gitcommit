@@ -5,7 +5,8 @@
                 <NSpace vertical>
                     <NSpace justify="end" align="center" size="large">
                         <NButton size="small" @click="settingRef?.switchSetting"> 设置 </NButton>
-                        <NButton size="small" @click="customeEmojiRef?.switchCustom"> 自定义emoji </NButton>
+                        <NButton size="small" @click="showCustomMsgWindow = true">自定义msg</NButton>
+                        <NButton size="small" @click="customeEmojiRef?.switchCustom"> 自定义emoji</NButton>
                         <NButton size="small" @click="helpRef?.switchHelp"> 帮助 </NButton>
                         <NButton size="small" @click="show = true"> 预览 </NButton>
                         <NButton type="warning" size="small" @click="handleClear">重置内容</NButton>
@@ -26,7 +27,9 @@
                                 filterable
                                 placeholder="类型"
                                 size="large"
-                                :options="typeOptions"
+                                :filter="useFilterMsg"
+                                :options="commitMsgStore.list"
+                                :render-label="commitMsgLabelRender"
                                 :disabled="settingsStore.settings.value.isEmojiMode"
                             >
                             </NSelect>
@@ -124,13 +127,14 @@
     <Help ref="helpRef" />
     <SettingsView ref="settingRef" />
     <CustomeEmoji ref="customeEmojiRef" />
+    <CustomCommitMsg ref="showCustomMsgWindow" />
 </template>
 <script setup lang="ts">
 import useUtools, { paste } from "@/composables/useUtools";
-import { typeData } from "@/data";
-import { useFilterEmoji, useFocusInput, useGetSpan } from "@/composables/useSearch";
+import { useFilterEmoji, useFilterMsg, useFocusInput, useGetSpan } from "@/composables/useSearch";
 import { settingsStore, useEmojisStore } from "@/store";
-import { InputInst, SelectInst } from "naive-ui";
+import { InputInst, SelectInst, SelectOption } from "naive-ui";
+import { useCommitMsgStore } from "@/store/commitMsgStore";
 
 // xxx:添加新emoji时在重新生成rawEmojis
 // import { nameToEmoji } from "gemoji";
@@ -196,7 +200,13 @@ whenever(CtrlP, () => {
 whenever(shiftCtrlR, () => {
     handleClear();
 });
-
+/**
+ * 渲染消息
+ * @param option label option
+ * @return label str
+ */
+const commitMsgLabelRender = (option: SelectOption): string => option.label + "(" + option.value + ")";
+const showCustomMsgWindow = ref<boolean>(false);
 const validCommit = (fn: () => Promise<void>) => {
     if (!subject.value) {
         message.error("简短描述 必填");
@@ -232,8 +242,7 @@ const handleCopy = async () => {
     }
 };
 // https://github.com/conventional-changelog/commitlint/blob/master/%40commitlint/config-conventional/index.js
-const typeOptions = ref(typeData);
-
+const commitMsgStore = useCommitMsgStore();
 const emojisStore = useEmojisStore();
 
 // 默认emoji
@@ -244,10 +253,10 @@ const emoji = ref(defatltEmoji.value);
 watch(
     type,
     (val) => {
-        const _emoji = typeOptions.value.find((item) => item.value === val)!.emoji;
+        const _emoji = commitMsgStore.list.find((item) => item.value === val)!.emoji;
         emoji.value =
-            emojisStore.emojiOptions.value.find((item) => item.value.startsWith(_emoji))?.value ??
-            defatltEmoji.value;
+            emojisStore.emojiOptions.value.find((item: { value: string }) => item.value.startsWith(_emoji))
+                ?.value ?? defatltEmoji.value;
     },
     { immediate: true }
 );
@@ -296,7 +305,7 @@ const handleClear = () => {
             subject.value = "";
             scope.value = "";
             body.value = "";
-            type.value = typeOptions.value[0].value;
+            type.value = commitMsgStore.list[0].value;
         }
     });
 };
