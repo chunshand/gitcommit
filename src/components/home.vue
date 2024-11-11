@@ -5,7 +5,9 @@
                 <NSpace vertical>
                     <NSpace justify="end" align="center" size="large">
                         <NButton size="small" @click="settingRef?.switchSetting"> 设置 </NButton>
-                        <NButton size="small" @click="showCustomMsgWindow = true">自定义msg</NButton>
+                        <NButton size="small" @click="showCustomMsgWindow.handleSetShowWindow(true)"
+                            >自定义msg</NButton
+                        >
                         <NButton size="small" @click="customeEmojiRef?.switchCustom"> 自定义emoji</NButton>
                         <NButton size="small" @click="helpRef?.switchHelp"> 帮助 </NButton>
                         <NButton size="small" @click="show = true"> 预览 </NButton>
@@ -206,7 +208,7 @@ whenever(shiftCtrlR, () => {
  * @return label str
  */
 const commitMsgLabelRender = (option: SelectOption): string => option.label + "(" + option.value + ")";
-const showCustomMsgWindow = ref<boolean>(false);
+const showCustomMsgWindow = ref();
 const validCommit = (fn: () => Promise<void>) => {
     if (!subject.value) {
         message.error("简短描述 必填");

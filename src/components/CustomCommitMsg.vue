@@ -22,7 +22,12 @@ import { CommitMsg } from "@/data"
 import { CUSTOM_COMMIT_MSG_KEY, useCommitMsgStore } from "@/store/commitMsgStore"
 
 const showWindow = ref(false)
-defineExpose(showWindow)
+const handleSetShowWindow = (bool: boolean) => {
+    showWindow.value = bool
+}
+defineExpose({
+    handleSetShowWindow
+})
 const { error, success } = useMessage()
 const msgStore = useCommitMsgStore()
 
